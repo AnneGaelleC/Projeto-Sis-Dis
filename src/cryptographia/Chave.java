@@ -21,7 +21,7 @@ public class Chave {
 	        File chavePrivadaFile = new File(PATH_CHAVE_PRIVADA);
 	        File chavePublicaFile = new File(PATH_CHAVE_PUBLICA);
 	   
-	        // Cria os arquivos para armazenar a chave Privada e a chave Publica
+
 	        if (chavePrivadaFile.getParentFile() != null) {
 	          chavePrivadaFile.getParentFile().mkdirs();
 	        }
