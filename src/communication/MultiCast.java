@@ -19,7 +19,7 @@ public class MultiCast {
 				s= new MulticastSocket(port);
 	        
 	  		} catch (SocketException e) {
-          System.out.println("Socket: " + e.getMessage());}
+	  			System.out.println("Socket: " + e.getMessage());}
 	  		}
 
           public void send(String message) throws IOException{

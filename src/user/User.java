@@ -1,8 +1,6 @@
 package user;
 
 import java.math.BigInteger;
-import java.security.*;
-import javax.crypto.*;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 
@@ -57,9 +55,10 @@ public class User {
 	    	if(code<0){
 	    		code = code*(-1);
 	    	}
-	    		
-	    	System.out.println(name);
-	    	System.out.println(code);
+	    	
+	    	//DEBUG
+	    	//System.out.println(name);
+	    	//System.out.println(code);
 	    }
 	}	
 }
