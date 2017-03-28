@@ -3,14 +3,19 @@ package user;
 import java.math.BigInteger;
 import java.security.*;
 import javax.crypto.*;
+import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 
 public class User {
 	private String name;
-	private int code;
+	private long code;
 	private BigInteger publicKey ;
 	private BigInteger privateKey;
 	
+	public User(){
+		name = "";
+		code = 0;
+	}
 	public void setName(String name){
 		this.name=name;
 	}
@@ -26,7 +31,7 @@ public class User {
 	public String getName(){
 		return name;
 	}
-	public int getCode(){
+	public long getCode(){
 		return code;
 	}
 	public BigInteger getPublicKey(){
@@ -37,8 +42,24 @@ public class User {
 	}
 	
 	public void initialization(){
-		final JOptionPane optionPane= new JOptionPane("empty",
-		JOptionPane.QUESTION_MESSAGE);
-	}
-	
+		
+		JFrame frame = new JFrame("User");
+	    // prompt the user to enter his name
+	    
+	    while(this.name.isEmpty() == true){
+	    	this.name = JOptionPane.showInputDialog(frame, "What's your name?", "Name", JOptionPane.QUESTION_MESSAGE);
+	    	
+	    	if(this.name == null){
+	    		System.exit(0);
+	    	}
+	    	
+	    	this.code=(long)name.hashCode();
+	    	if(code<0){
+	    		code = code*(-1);
+	    	}
+	    		
+	    	System.out.println(name);
+	    	System.out.println(code);
+	    }
+	}	
 }
