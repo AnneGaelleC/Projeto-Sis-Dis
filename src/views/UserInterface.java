@@ -11,7 +11,6 @@ import javax.swing.JLabel;
 import javax.swing.JButton;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
-import javax.swing.JTabbedPane;
 import javax.swing.JPanel;
 
 public class UserInterface extends javax.swing.JFrame {
