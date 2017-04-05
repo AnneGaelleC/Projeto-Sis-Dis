@@ -12,7 +12,7 @@ public class MultiCast {
   private InetAddress group;
   private byte[] buffer;	
   private MulticastListener multicastListener; //thread to listen all messages in this multicast group
-  
+  private int port;
   /**
    * Constructor
    */
@@ -32,10 +32,10 @@ public class MultiCast {
   public void connect(String ip, int port) throws IOException {
         // Could be used DatagramSocket instead if the server only sends message and doesn't receive other peers message.
         try {
+        	this.port = port;
         	s = new MulticastSocket(port);
         	group = InetAddress.getByName(ip);
 			s.joinGroup(group);
-			s= new MulticastSocket(port);
 			multicastListener.setMulticastSocket(s);
 			multicastListener.start();
         
@@ -50,13 +50,51 @@ public class MultiCast {
    * @throws IOException
    */
   public void send(String message) throws IOException{
+	  
       byte [] messagetoSend = message.getBytes();
-      DatagramPacket indp = new DatagramPacket(messagetoSend, messagetoSend.length);
-      s.send(indp);
-      if ("Stop".equalsIgnoreCase(message)){	            
+      
+      DatagramPacket indp = new DatagramPacket(messagetoSend, messagetoSend.length, group, port);
+      
+      if(s!= null)
+    	  s.send(indp);
+      
+      if ("Stop".equalsIgnoreCase(message))
+      {	            
       	s.leaveGroup(group);
       }
   }
+
+public MulticastSocket getS() {
+	return s;
+}
+
+public void setS(MulticastSocket s) {
+	this.s = s;
+}
+
+public InetAddress getGroup() {
+	return group;
+}
+
+public void setGroup(InetAddress group) {
+	this.group = group;
+}
+
+public byte[] getBuffer() {
+	return buffer;
+}
+
+public void setBuffer(byte[] buffer) {
+	this.buffer = buffer;
+}
+
+public MulticastListener getMulticastListener() {
+	return multicastListener;
+}
+
+public void setMulticastListener(MulticastListener multicastListener) {
+	this.multicastListener = multicastListener;
+}
 }
 
 
