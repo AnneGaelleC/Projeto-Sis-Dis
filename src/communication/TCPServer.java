@@ -9,16 +9,16 @@ public class TCPServer {
 			ServerSocket listenSocket = new ServerSocket(serverPort);
 			while(true) {
 				Socket clientSocket = listenSocket.accept();
-				Connection c = new Connection(clientSocket);
+				ConnectionServer c = new ConnectionServer(clientSocket);
 			}
 		} catch(IOException e) {System.out.println("Listen socket:"+e.getMessage());}
 	}
 }
-class Connection extends Thread {
+class ConnectionServer extends Thread {
 	DataInputStream in;
 	DataOutputStream out;
 	Socket clientSocket;
-	public Connection (Socket aClientSocket) {
+	public ConnectionServer (Socket aClientSocket) {
 		try {
 			clientSocket = aClientSocket;
 			in = new DataInputStream( clientSocket.getInputStream());
