@@ -65,6 +65,12 @@ public class MulticastListener extends Thread{
         }
     }
     
+    /**
+     * 
+     * @param messageIn
+     * @throws IOException
+     * @throws ClassNotFoundException
+     */
     public void processMessages(DatagramPacket messageIn) throws IOException, ClassNotFoundException
     {
     	ByteArrayInputStream bis = new ByteArrayInputStream(messageIn.getData());
@@ -133,6 +139,11 @@ public class MulticastListener extends Thread{
         	
         	//if(ip != myIp)
         		productsList.add(product);
+        }
+        
+        if(messageType == 'U')//update prices
+        {
+        	
         }
     }
 }

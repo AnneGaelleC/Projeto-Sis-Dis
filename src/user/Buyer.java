@@ -10,7 +10,8 @@ public class Buyer extends User {
 	ConnectionManager connectionManager;
 	private TCPServer tCPServer; 
 	private TCPClient tcpClient;
-	ArrayList< Product > productsList = new ArrayList< Product >();
+	ArrayList< Product > AvailableProductsList= new ArrayList< Product >();
+	ArrayList< Product > WantedProductsList = new ArrayList< Product >();
 
 
 	public Buyer(User u){
@@ -51,11 +52,11 @@ public class Buyer extends User {
 	public void updateProductsList()
 	{
 		
-		productsList = connectionManager.getProductsList();
+		AvailableProductsList = connectionManager.getProductsList();
 	}
 	
 	public ArrayList<Product> getProductsList() {
-		return productsList;
+		return AvailableProductsList;
 	}
 	
 	public void bide(int productCode, int selleCode, float bide, Product product)
@@ -65,6 +66,26 @@ public class Buyer extends User {
 	public void startCommunicationTCP(int newBide){
 		
 		setBide(newBide);
+	}
+	
+	/**
+	 * 
+	 * @param p code of a product
+	 * @return true if the Product p is already on the buyer's list
+	 */
+	public boolean checkProducts(int p, int s)
+	{
+		WantedProductsList.contains(p);
+		
+		for(int i = 0; i< WantedProductsList.size(); i++)
+		{
+			if(WantedProductsList.get(i).getProductCode() == p && WantedProductsList.get(i).getSellerCode() == s)
+			{
+				return true;
+			}
+		}
+		
+		return false;
 	}
 		
 }

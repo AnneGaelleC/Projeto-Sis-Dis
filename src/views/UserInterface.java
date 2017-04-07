@@ -123,8 +123,17 @@ public class UserInterface extends javax.swing.JFrame {
                 lblAvailableProducts = new JLabel("Available Products");
                 
                 btnBide = new JButton("Bide");
+                
+                
                 btnBide.addActionListener(new ActionListener() {
                 	public void actionPerformed(ActionEvent e) {
+                		/**
+                		 * If returns true, the product is already been bided and I don't add it to my list again
+                		 */
+                		if(buyer.checkProducts(Integer.parseInt(textFieldCodeProductNeeded.getText()), Integer.parseInt(textFieldSellerWanted.getText())))
+                		{
+                			
+                		}
                 		
                 	}
                 });
