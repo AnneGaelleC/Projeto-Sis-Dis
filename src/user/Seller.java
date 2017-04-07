@@ -1,31 +1,26 @@
 package user;
-<<<<<<< HEAD
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.util.ArrayList;
-
 import auction.Product;
-=======
->>>>>>> 5a676652b1b29bfbb994c85d55d50de4a922b748
 import communication.*;
+
 
 public class Seller extends User{
 	
-	private User Seller;
-<<<<<<< HEAD
-	private String name;
-	private int code; 
-	private TCPClient TCPClient; 
+	private TCPClient tcpClient; 
 	ConnectionManager connectionManager;
 	ArrayList< Product > productsList = new ArrayList< Product >();
 	private int port;
+	private TCPClient TCPClient; 
+	
 	
 	public Seller(User u){
 		name = u.getName();
 		code = u.getCode();
 		myIp = u.getMyIp();
-		connectionManager = u.getConnectioManager();
+		connectionManager = u.getconnectionManager();
 		
 		
 	}
@@ -55,16 +50,5 @@ public class Seller extends User{
         
 		
 	}
-=======
-	private String name = Seller.getName();
-	private int code = Seller.getCode(); 
-	private TCPClient TCPClient; 
-	
-	
-
-	
-	
-	
->>>>>>> 5a676652b1b29bfbb994c85d55d50de4a922b748
 
 }

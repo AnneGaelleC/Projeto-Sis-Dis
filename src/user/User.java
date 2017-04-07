@@ -24,20 +24,20 @@ import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 
 public class User {
-	private String name;
-	private int code;
-	protected ConnectionManager connectioManager;
+	protected String name;
+	protected int code;
+	protected ConnectionManager connectionManager;
 	private PublicKey publicKey ;
 	private PrivateKey privateKey;
 	private Chave cryptKey;
 	private String publicKeyString;
 	protected String myIp;
 	
-	public ConnectionManager getConnectioManager() {
-		return connectioManager;
+	public ConnectionManager getconnectionManager() {
+		return connectionManager;
 	}
-	public void setConnectioManager(ConnectionManager connectioManager) {
-		this.connectioManager = connectioManager;
+	public void setconnectionManager(ConnectionManager connectionManager) {
+		this.connectionManager = connectionManager;
 	}
 	public User(){
 		name = "";
@@ -79,10 +79,10 @@ public class User {
 	    		cryptKey.geraChave();
 	    	}
 	    	
-	    	connectioManager = new ConnectionManager();
+	    	connectionManager = new ConnectionManager();
 			try {
-				connectioManager.initConnections();
-				myIp = connectioManager.getIp();
+				connectionManager.initConnections();
+				myIp = connectionManager.getIp();
 				ObjectInputStream inputStream = null;
 	    		String PATH_CHAVE_PUBLICA = "./Key/public.key";
 	    		inputStream = new ObjectInputStream(new FileInputStream(PATH_CHAVE_PUBLICA));
@@ -92,13 +92,13 @@ public class User {
 	            oos.writeChar('H');
 	            oos.writeObject(name);
 	            oos.writeInt(code);
-	            oos.writeObject(connectioManager.getIp());
+	            oos.writeObject(connectionManager.getIp());
 	            oos.writeObject(publicKey);
 	            oos.flush();
 	            byte[] output = bos.toByteArray();
 				
 				//Send the hello message when the user enter the multicast group
-				connectioManager.sendMulticastMessage(output);
+				connectionManager.sendMulticastMessage(output);
 				
 			} catch (UnknownHostException e) {
 				// TODO Auto-generated catch block

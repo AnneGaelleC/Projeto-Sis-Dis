@@ -1,18 +1,12 @@
 package user;
-<<<<<<< HEAD
 import java.util.ArrayList;
 
 import auction.Product;
-=======
->>>>>>> 5a676652b1b29bfbb994c85d55d50de4a922b748
 import communication.*;
 
 public class Buyer extends User {
     private int Bide;
-	private User Buyer;
-<<<<<<< HEAD
-	private String name;
-	private int code;
+    private TCPServer TCPServer; 
 	ConnectionManager connectionManager;
 	private TCPServer tCPServer; 
 	private TCPClient tcpClient;
@@ -23,18 +17,13 @@ public class Buyer extends User {
 		name = u.getName();
 		code = u.getCode();
 		myIp = u.getMyIp();
-		connectionManager = u.getConnectioManager();
+		connectionManager = u.getconnectionManager();
 		tcpClient = new TCPClient();
 	}
 	
-=======
-	private String name = Buyer.getName();
-	private int code = Buyer.getCode(); 
-	private TCPServer TCPServer; 
-	private ConnectionServer ConnectionServer;
+	
 
 
->>>>>>> 5a676652b1b29bfbb994c85d55d50de4a922b748
 	public int getBide() {
 		return Bide;
 	}
@@ -52,7 +41,6 @@ public class Buyer extends User {
 		}
 	}
 	
-<<<<<<< HEAD
 	public void startCommunicationTCP(int newBide, int port){
 		tCPServer = new TCPServer();
 		tCPServer.ServerListener(port);
@@ -72,14 +60,11 @@ public class Buyer extends User {
 	
 	public void bide(int productCode, int selleCode, float bide, Product product)
 	{
-		tcpClient.Connect()
+		//tcpClient.Connect();
 	}
-=======
 	public void startCommunicationTCP(int newBide){
-		ConnectionServer = new ConnectionServer();
-		ConnectionServer.initConnections();
-		setBide(newBide);
 		
+		setBide(newBide);
 	}
->>>>>>> 5a676652b1b29bfbb994c85d55d50de4a922b748
+		
 }
