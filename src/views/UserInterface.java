@@ -5,16 +5,26 @@ import javax.swing.GroupLayout;
 import javax.swing.JTextField;
 import javax.swing.LayoutStyle.ComponentPlacement;
 
-import user.User;
+import auction.Product;
+import user.*;
 
 import javax.swing.JLabel;
 import javax.swing.JButton;
 import java.awt.event.ActionListener;
+import java.io.IOException;
+import java.security.NoSuchAlgorithmException;
+import java.security.spec.InvalidKeySpecException;
+import java.util.ArrayList;
 import java.awt.event.ActionEvent;
 import javax.swing.JPanel;
+import javax.swing.JEditorPane;
 
 public class UserInterface extends javax.swing.JFrame {
 
+	
+	static User user;
+	static Seller seller;
+	static Buyer buyer;
     /**
      * Creates new form NewJFrame
      */
@@ -32,84 +42,12 @@ public class UserInterface extends javax.swing.JFrame {
     private void initComponents() {
 
         jTabbedPane1 = new javax.swing.JTabbedPane();
-        jPanel1 = new javax.swing.JPanel();
-        jTextFieldListProduct = new javax.swing.JTextField();
         jPanel2 = new javax.swing.JPanel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
-
-        jTextFieldListProduct.setText("jTextField1");
         
-        textFieldCodeProductNeeded = new JTextField();
-        textFieldCodeProductNeeded.setColumns(10);
-        
-        textFieldSellerWanted = new JTextField();
-        textFieldSellerWanted.setColumns(10);
-        
-        lblCode_1 = new JLabel("Code");
-        
-        lblSeller = new JLabel("Seller");
-        
-        lblAvailableProducts = new JLabel("Available Products");
-        
-        btnBide = new JButton("Bide");
-
-        javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
-        jPanel1Layout.setHorizontalGroup(
-        	jPanel1Layout.createParallelGroup(Alignment.LEADING)
-        		.addGroup(jPanel1Layout.createSequentialGroup()
-        			.addGroup(jPanel1Layout.createParallelGroup(Alignment.LEADING)
-        				.addGroup(jPanel1Layout.createSequentialGroup()
-        					.addGap(19)
-        					.addComponent(jTextFieldListProduct, GroupLayout.PREFERRED_SIZE, 175, GroupLayout.PREFERRED_SIZE)
-        					.addGroup(jPanel1Layout.createParallelGroup(Alignment.LEADING, false)
-        						.addGroup(jPanel1Layout.createSequentialGroup()
-        							.addGap(51)
-        							.addGroup(jPanel1Layout.createParallelGroup(Alignment.LEADING)
-        								.addComponent(lblCode_1)
-        								.addComponent(lblSeller))
-        							.addGap(48)
-        							.addGroup(jPanel1Layout.createParallelGroup(Alignment.LEADING)
-        								.addComponent(textFieldSellerWanted, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
-        								.addComponent(textFieldCodeProductNeeded, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)))
-        						.addGroup(Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
-        							.addPreferredGap(ComponentPlacement.RELATED, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-        							.addComponent(btnBide)
-        							.addGap(32))))
-        				.addGroup(jPanel1Layout.createSequentialGroup()
-        					.addGap(48)
-        					.addComponent(lblAvailableProducts)))
-        			.addContainerGap(57, Short.MAX_VALUE))
-        );
-        jPanel1Layout.setVerticalGroup(
-        	jPanel1Layout.createParallelGroup(Alignment.LEADING)
-        		.addGroup(jPanel1Layout.createSequentialGroup()
-        			.addGap(12)
-        			.addComponent(lblAvailableProducts)
-        			.addPreferredGap(ComponentPlacement.UNRELATED)
-        			.addGroup(jPanel1Layout.createParallelGroup(Alignment.LEADING)
-        				.addGroup(jPanel1Layout.createSequentialGroup()
-        					.addGroup(jPanel1Layout.createParallelGroup(Alignment.BASELINE)
-        						.addComponent(textFieldCodeProductNeeded, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
-        						.addComponent(lblCode_1))
-        					.addGap(29)
-        					.addGroup(jPanel1Layout.createParallelGroup(Alignment.BASELINE)
-        						.addComponent(textFieldSellerWanted, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
-        						.addComponent(lblSeller))
-        					.addGap(31)
-        					.addComponent(btnBide))
-        				.addComponent(jTextFieldListProduct, GroupLayout.PREFERRED_SIZE, 324, GroupLayout.PREFERRED_SIZE))
-        			.addContainerGap(30, Short.MAX_VALUE))
-        );
-        jPanel1.setLayout(jPanel1Layout);
-
-        jTabbedPane1.addTab("Buyer", jPanel1);
-        
-        textFieldProductSold = new JTextField();
-        textFieldProductSold.setColumns(10);
-        
-        textFieldCode = new JTextField();
-        textFieldCode.setColumns(10);
+        textFieldProductSoldCode = new JTextField();
+        textFieldProductSoldCode.setColumns(10);
         
         textFieldName = new JTextField();
         textFieldName.setColumns(10);
@@ -119,6 +57,9 @@ public class UserInterface extends javax.swing.JFrame {
         
         textFieldPrice = new JTextField();
         textFieldPrice.setColumns(10);
+        
+        textFieldEndTime = new JTextField();
+        textFieldEndTime.setColumns(10);
         
         lblCode = new JLabel("Code");
         
@@ -133,8 +74,156 @@ public class UserInterface extends javax.swing.JFrame {
         JButton btnNewButtonSell = new JButton("Sell");
         btnNewButtonSell.addActionListener(new ActionListener() {
         	public void actionPerformed(ActionEvent e) {
+        		Product product = new Product();    
+        		
+        		
+        		if(!textFieldProductSoldCode.getText().equals(""))
+        		{
+        			product.setProductCode(Integer.parseInt((textFieldProductSoldCode.getText())));
+        		}
+        		if(!textFieldName.getText().equals(""))
+        		{
+        			product.setProductName(textFieldName.getText());
+        		}
+        		if(!textFieldDescription.getText().equals(""))
+        		{
+        			product.setDescription(textFieldDescription.getText());
+        		}
+        		if(!textFieldPrice.getText().equals(""))
+        		{
+        			product.setPrice(Float.parseFloat(textFieldPrice.getText()));
+        		}
+        		if(!textFieldEndTime.getText().equals(""))
+        		{
+        			product.setEndTime(Float.parseFloat(textFieldEndTime.getText()));
+        		}
+        		
+        		try {
+					seller.SellNewProduct(product);
+				} catch (IOException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
         	}
         });
+        jPanel1 = new javax.swing.JPanel();
+                
+                textFieldCodeProductNeeded = new JTextField();
+                textFieldCodeProductNeeded.setColumns(10);
+                
+                textFieldSellerWanted = new JTextField();
+                textFieldSellerWanted.setColumns(10);
+                
+                lblCode_1 = new JLabel("Code");
+                
+                lblSeller = new JLabel("Seller");
+                
+                lblAvailableProducts = new JLabel("Available Products");
+                
+                btnBide = new JButton("Bide");
+                btnBide.addActionListener(new ActionListener() {
+                	public void actionPerformed(ActionEvent e) {
+                		
+                	}
+                });
+                
+                JButton btnNewButton = new JButton("Update product List");
+                btnNewButton.addActionListener(new ActionListener() {
+                	public void actionPerformed(ActionEvent e) {
+                		ArrayList< Product > productsList = new ArrayList< Product >();
+                		
+                		buyer.updateProductsList();
+                		productsList = buyer.getProductsList();
+                		
+                		textPanelproductesList.setText("");
+                		String textToupdate = "";
+                		for(int i = 0; i< productsList.size(); i++)
+                		{
+                			textToupdate = "Seller:"+textToupdate+productsList.get(i).getProductName()+"\n"+
+                							"    Product code->"+productsList.get(i).getProductCode()+"\n"+
+                							"    Desciption->"+productsList.get(i).getDescription()+"\n"+
+                							"    Price->"+productsList.get(i).getPrice()+"\n"+
+                							"    End Time->"+productsList.get(i).getEndTime()+"\n"+
+                							"    Seller code->"+productsList.get(i).getSellerCode()+"\n";
+                		}
+                		
+                		textPanelproductesList.setText(textToupdate);
+                	}
+                });
+                        
+                        textPanelproductesList = new JEditorPane();
+                        
+                        textField = new JTextField();
+                        textField.setColumns(10);
+                        
+                        JLabel lblBide = new JLabel("Bide");
+                
+                        javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
+                        jPanel1Layout.setHorizontalGroup(
+                        	jPanel1Layout.createParallelGroup(Alignment.LEADING)
+                        		.addGroup(jPanel1Layout.createSequentialGroup()
+                        			.addGroup(jPanel1Layout.createParallelGroup(Alignment.LEADING)
+                        				.addGroup(jPanel1Layout.createSequentialGroup()
+                        					.addContainerGap()
+                        					.addComponent(textPanelproductesList)
+                        					.addGroup(jPanel1Layout.createParallelGroup(Alignment.LEADING)
+                        						.addGroup(jPanel1Layout.createSequentialGroup()
+                        							.addGap(20)
+                        							.addGroup(jPanel1Layout.createParallelGroup(Alignment.TRAILING, false)
+                        								.addGroup(jPanel1Layout.createSequentialGroup()
+                        									.addComponent(lblBide)
+                        									.addPreferredGap(ComponentPlacement.RELATED, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        									.addGroup(jPanel1Layout.createParallelGroup(Alignment.LEADING)
+                        										.addComponent(textField, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+                        										.addComponent(btnBide)))
+                        								.addGroup(jPanel1Layout.createSequentialGroup()
+                        									.addGroup(jPanel1Layout.createParallelGroup(Alignment.LEADING)
+                        										.addComponent(lblSeller)
+                        										.addComponent(lblCode_1))
+                        									.addPreferredGap(ComponentPlacement.UNRELATED)
+                        									.addGroup(jPanel1Layout.createParallelGroup(Alignment.LEADING)
+                        										.addComponent(textFieldCodeProductNeeded, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+                        										.addComponent(textFieldSellerWanted, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)))))
+                        						.addGroup(jPanel1Layout.createSequentialGroup()
+                        							.addPreferredGap(ComponentPlacement.RELATED)
+                        							.addComponent(btnNewButton))))
+                        				.addGroup(jPanel1Layout.createSequentialGroup()
+                        					.addGap(100)
+                        					.addComponent(lblAvailableProducts)))
+                        			.addContainerGap())
+                        );
+                        jPanel1Layout.setVerticalGroup(
+                        	jPanel1Layout.createParallelGroup(Alignment.LEADING)
+                        		.addGroup(jPanel1Layout.createSequentialGroup()
+                        			.addContainerGap()
+                        			.addComponent(lblAvailableProducts)
+                        			.addPreferredGap(ComponentPlacement.RELATED)
+                        			.addGroup(jPanel1Layout.createParallelGroup(Alignment.LEADING)
+                        				.addGroup(jPanel1Layout.createSequentialGroup()
+                        					.addGap(16)
+                        					.addGroup(jPanel1Layout.createParallelGroup(Alignment.BASELINE)
+                        						.addComponent(lblCode_1)
+                        						.addComponent(textFieldCodeProductNeeded, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
+                        					.addGap(29)
+                        					.addGroup(jPanel1Layout.createParallelGroup(Alignment.BASELINE)
+                        						.addComponent(lblSeller)
+                        						.addComponent(textFieldSellerWanted, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
+                        					.addGap(18)
+                        					.addGroup(jPanel1Layout.createParallelGroup(Alignment.BASELINE)
+                        						.addComponent(textField, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+                        						.addComponent(lblBide))
+                        					.addGap(29)
+                        					.addComponent(btnBide)
+                        					.addGap(62)
+                        					.addComponent(btnNewButton))
+                        				.addGroup(jPanel1Layout.createSequentialGroup()
+                        					.addPreferredGap(ComponentPlacement.RELATED)
+                        					.addComponent(textPanelproductesList, GroupLayout.DEFAULT_SIZE, 346, Short.MAX_VALUE)))
+                        			.addContainerGap())
+                        );
+                        jPanel1.setLayout(jPanel1Layout);
+                        
+                                jTabbedPane1.addTab("Buyer", jPanel1);
 
         javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
         jPanel2Layout.setHorizontalGroup(
@@ -151,11 +240,11 @@ public class UserInterface extends javax.swing.JFrame {
         						.addComponent(lblCode))
         					.addGap(44)
         					.addGroup(jPanel2Layout.createParallelGroup(Alignment.LEADING)
-        						.addComponent(textFieldPrice, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
-        						.addComponent(textFieldProductSold, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
-        						.addComponent(textFieldCode, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+        						.addComponent(textFieldEndTime, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+        						.addComponent(textFieldProductSoldCode, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
         						.addComponent(textFieldName, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
-        						.addComponent(textFieldDescription, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)))
+        						.addComponent(textFieldDescription, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+        						.addComponent(textFieldPrice, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)))
         				.addGroup(jPanel2Layout.createSequentialGroup()
         					.addGap(136)
         					.addComponent(btnNewButtonSell)))
@@ -166,23 +255,23 @@ public class UserInterface extends javax.swing.JFrame {
         		.addGroup(jPanel2Layout.createSequentialGroup()
         			.addGap(28)
         			.addGroup(jPanel2Layout.createParallelGroup(Alignment.BASELINE)
-        				.addComponent(textFieldProductSold, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+        				.addComponent(textFieldProductSoldCode, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
         				.addComponent(lblCode))
         			.addPreferredGap(ComponentPlacement.UNRELATED)
         			.addGroup(jPanel2Layout.createParallelGroup(Alignment.BASELINE)
-        				.addComponent(textFieldCode, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+        				.addComponent(textFieldName, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
         				.addComponent(lblName))
         			.addPreferredGap(ComponentPlacement.RELATED)
         			.addGroup(jPanel2Layout.createParallelGroup(Alignment.BASELINE)
-        				.addComponent(textFieldName, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+        				.addComponent(textFieldDescription, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
         				.addComponent(lblDescription))
         			.addPreferredGap(ComponentPlacement.RELATED)
         			.addGroup(jPanel2Layout.createParallelGroup(Alignment.BASELINE)
-        				.addComponent(textFieldDescription, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+        				.addComponent(textFieldPrice, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
         				.addComponent(lblPrice))
         			.addPreferredGap(ComponentPlacement.RELATED)
         			.addGroup(jPanel2Layout.createParallelGroup(Alignment.BASELINE)
-        				.addComponent(textFieldPrice, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+        				.addComponent(textFieldEndTime, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
         				.addComponent(lblTime))
         			.addPreferredGap(ComponentPlacement.UNRELATED)
         			.addComponent(btnNewButtonSell)
@@ -271,9 +360,29 @@ public class UserInterface extends javax.swing.JFrame {
          * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
          */
     	
-    	User user;
+    	
     	user = new User();
-    	user.initialization();
+    	
+    	
+    	try {
+			user.initialization();
+			seller = new Seller(user);
+	    	buyer = new Buyer(user);
+	    	
+	    	
+		} catch (ClassNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (NoSuchAlgorithmException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (InvalidKeySpecException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
     	
         try {
             for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
@@ -305,14 +414,13 @@ public class UserInterface extends javax.swing.JFrame {
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JTabbedPane jTabbedPane1;
-    private javax.swing.JTextField jTextFieldListProduct;
     private JTextField textFieldCodeProductNeeded;
     private JTextField textFieldSellerWanted;
-    private JTextField textFieldProductSold;
-    private JTextField textFieldCode;
+    private JTextField textFieldProductSoldCode;
     private JTextField textFieldName;
     private JTextField textFieldDescription;
     private JTextField textFieldPrice;
+    private JTextField textFieldEndTime;
     private JLabel lblCode;
     private JLabel lblDescription;
     private JLabel lblName;
@@ -329,5 +437,7 @@ public class UserInterface extends javax.swing.JFrame {
     private JLabel lblSellerCode;
     private JLabel labelSellerCode;
     private JButton btnBide;
+    private JEditorPane textPanelproductesList;
+    private JTextField textField;
 }
 

@@ -18,12 +18,12 @@ public class Chave {
   /**
    * Local da chave privada no sistema de arquivos.
    */
-  public static final String PATH_CHAVE_PRIVADA = "/Users/anne-gaelle/Key/private.key";
+  public static final String PATH_CHAVE_PRIVADA = "./Key/private.key";
  
   /**
    * Local da chave pública no sistema de arquivos.
    */
-  public static final String PATH_CHAVE_PUBLICA = "/Users/anne-gaelle/Key/public.key";
+  public static final String PATH_CHAVE_PUBLICA = "./Key/public.key";
  
   /**
    * Gera a chave que contém um par de chave Privada e Pública usando 1025 bytes.

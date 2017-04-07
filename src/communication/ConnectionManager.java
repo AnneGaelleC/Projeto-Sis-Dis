@@ -5,10 +5,13 @@ import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.SocketException;
 import java.net.UnknownHostException;
+import java.util.ArrayList;
 import java.util.Enumeration;
 
+import auction.Product;
+
 public class ConnectionManager {
-	private MultiCast multicastConnection;
+	private MultiCast nulticastConnection;
 	private String ip;
 	private String multicastIp;
 	private static int port;
@@ -17,7 +20,7 @@ public class ConnectionManager {
 		ip = "127.0.0.1";
 		port = 1234;
 		multicastIp = "228.5.6.7";
-		multicastConnection = new MultiCast();
+		nulticastConnection = new MultiCast();
 	}
 	
 	/**
@@ -53,11 +56,35 @@ public class ConnectionManager {
 		discoverIp();
 		try {
 			//try start a multicast connection
-			multicastConnection.connect(multicastIp, port);
+			nulticastConnection.connect(multicastIp, port, ip);
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		
+	}
+
+	public String getMulticastIp() {
+		// TODO Auto-generated method stub
+		return multicastIp;
+	}
+
+	public void sendMulticastMessage(byte[] output) {
+		try {
+			nulticastConnection.send(output);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+	}
+
+	public String getIp() {
+		// TODO Auto-generated method stub
+		return ip;
+	}
+	
+	public ArrayList<Product> getProductsList() {
+		return nulticastConnection.getProductsList();
 	}
 }//end class

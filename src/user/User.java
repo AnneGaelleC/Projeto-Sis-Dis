@@ -1,6 +1,7 @@
 package user;
 import cryptographia.*;
 
+import java.io.ByteArrayOutputStream;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -25,13 +26,19 @@ import javax.swing.JOptionPane;
 public class User {
 	private String name;
 	private int code;
-	private ConnectionManager connectioManager;
+	protected ConnectionManager connectioManager;
 	private PublicKey publicKey ;
 	private PrivateKey privateKey;
 	private Chave cryptKey;
-	private String HelloMulticastMessage;
 	private String publicKeyString;
+	protected String myIp;
 	
+	public ConnectionManager getConnectioManager() {
+		return connectioManager;
+	}
+	public void setConnectioManager(ConnectionManager connectioManager) {
+		this.connectioManager = connectioManager;
+	}
 	public User(){
 		name = "";
 		code = 0;
@@ -71,45 +78,27 @@ public class User {
 	    	{
 	    		cryptKey.geraChave();
 	    	}
-	    	ObjectInputStream inputStream = null;
-    		String PATH_CHAVE_PUBLICA = "./Key/public.key";
-    		inputStream = new ObjectInputStream(new FileInputStream(PATH_CHAVE_PUBLICA));
-    		publicKey = (PublicKey) inputStream.readObject();
-    		//String encodedKey = Base64.getEncoder().encodeToString(publicKey.getEncoded());
-    		publicKeyString = publicKey.toString();
-    		System.out.println(publicKeyString);
-    		byte[] publicKeyBytes = publicKey.getEncoded();
-    		KeyFactory keyFactory = KeyFactory.getInstance("RSA");
-    		EncodedKeySpec publicKeySpec = new X509EncodedKeySpec(publicKeyBytes);
-    	    PublicKey publicKey2 = keyFactory.generatePublic(publicKeySpec);
-    	    System.out.println(publicKey2.toString());
-    		/*X509EncodedKeySpec x509KeySpec = new X509EncodedKeySpec(clear);
-    		KeyFactory keyFactory = KeyFactory.getInstance("RSA");
-    		PublicKey pubKey = keyFactory.generatePublic(x509KeySpec);
-    		System.out.println(pubKey.toString());*/
-    		
-    		
-    		/*byte data[] = publicKeyString.getBytes("UTF-8");
-    		String encoded = Base64.getEncoder().encodeToString(data);
-    		byte[] decoded = Base64.getDecoder().decode(encoded);
-    		X509EncodedKeySpec keySpec = new X509EncodedKeySpec(decoded);
-    		KeyFactory keyFactory = KeyFactory.getInstance("RSA");
-    		PublicKey pubKey = keyFactory.generatePublic(keySpec);
-    		System.out.println(pubKey.toString());*/
-    		
-    		//byte[] publicBytes = Base64.getDecoder().decode(publicKeyString);
-    		
-    		/*byte data[] = publicKey.getEncoded();
-    		
-    		System.out.println(data.toString());*/
-    		
+	    	
 	    	connectioManager = new ConnectionManager();
 			try {
 				connectioManager.initConnections();
-				setHelloMulticastMessage(name+";"+Integer.toString(code)+";"+connectioManager.getMulticastIp()+";"+publicKeyString);
-		    	
+				myIp = connectioManager.getIp();
+				ObjectInputStream inputStream = null;
+	    		String PATH_CHAVE_PUBLICA = "./Key/public.key";
+	    		inputStream = new ObjectInputStream(new FileInputStream(PATH_CHAVE_PUBLICA));
+	    		publicKey = (PublicKey) inputStream.readObject();
+	            ByteArrayOutputStream bos = new ByteArrayOutputStream(10);
+	            ObjectOutputStream oos = new ObjectOutputStream(bos);
+	            oos.writeChar('H');
+	            oos.writeObject(name);
+	            oos.writeInt(code);
+	            oos.writeObject(connectioManager.getIp());
+	            oos.writeObject(publicKey);
+	            oos.flush();
+	            byte[] output = bos.toByteArray();
+				
 				//Send the hello message when the user enter the multicast group
-				connectioManager.sendMulticastMessage(HelloMulticastMessage);
+				connectioManager.sendMulticastMessage(output);
 				
 			} catch (UnknownHostException e) {
 				// TODO Auto-generated catch block
@@ -119,13 +108,18 @@ public class User {
 	    	//DEBUG
 	    	//System.out.println(name);
 	    	//System.out.println(code);
-	    }
-	    
+	    }	    
 	}
-	public String getHelloMulticastMessage() {
-		return HelloMulticastMessage;
+	public String getMyIp() {
+		return myIp;
 	}
-	public void setHelloMulticastMessage(String helloMulticastMessage) {
-		HelloMulticastMessage = helloMulticastMessage;
-	}	
+	public void setMyIp(String myIp) {
+		this.myIp = myIp;
+	}
+	public PublicKey getPublicKey() {
+		return publicKey;
+	}
+	public void setPublicKey(PublicKey publicKey) {
+		this.publicKey = publicKey;
+	}
 }

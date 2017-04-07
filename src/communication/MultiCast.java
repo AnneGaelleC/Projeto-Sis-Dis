@@ -6,6 +6,9 @@ import java.net.InetAddress;
 import java.net.MulticastSocket;
 import java.net.SocketException;
 import java.net.UnknownHostException;
+import java.util.ArrayList;
+
+import auction.Product;
 
 public class MultiCast {
   private MulticastSocket s;
@@ -29,7 +32,7 @@ public class MultiCast {
    * @param port the port to connect this process
    * @throws IOException
    */
-  public void connect(String ip, int port) throws IOException {
+  public void connect(String ip, int port, String myIp) throws IOException {
         // Could be used DatagramSocket instead if the server only sends message and doesn't receive other peers message.
         try {
         	this.port = port;
@@ -37,6 +40,7 @@ public class MultiCast {
         	group = InetAddress.getByName(ip);
 			s.joinGroup(group);
 			multicastListener.setMulticastSocket(s);
+			multicastListener.setMyIp(myIp);
 			multicastListener.start();
         
   		} catch (SocketException e) {
@@ -46,24 +50,27 @@ public class MultiCast {
   
   /**
    * 
-   * @param message to send by multicast
+   * @param output to send by multicast
    * @throws IOException
    */
-  public void send(String message) throws IOException{
+  public void send(byte[] output) throws IOException{
 	  
-      byte [] messagetoSend = message.getBytes();
       
-      DatagramPacket indp = new DatagramPacket(messagetoSend, messagetoSend.length, group, port);
+      DatagramPacket indp = new DatagramPacket(output, output.length, group, port);
       
       if(s!= null)
     	  s.send(indp);
       
-      if ("Stop".equalsIgnoreCase(message))
+      if ("Stop".equalsIgnoreCase(output.toString()))
       {	            
       	s.leaveGroup(group);
       }
   }
 
+  public ArrayList<Product> getProductsList() {
+		return multicastListener.getProductsList();
+	}
+  
 public MulticastSocket getS() {
 	return s;
 }
