@@ -16,9 +16,9 @@ public class Buyer extends User {
 	public Buyer(User u){
 		name = u.getName();
 		code = u.getCode();
-		myIp = u.getMyIp();
-		connectionManager = u.getconnectionManager();
+		myClientIp = u.getMyClientIp();
 		tcpClient = new TCPClient();
+		connectionManager = u.connectioManager;
 	}
 	
 	

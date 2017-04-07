@@ -11,7 +11,7 @@ import java.util.Enumeration;
 import auction.Product;
 
 public class ConnectionManager {
-	private MultiCast nulticastConnection;
+	private MultiCast multicastConnection;
 	private String ip;
 	private String multicastIp;
 	private static int port;
@@ -20,7 +20,7 @@ public class ConnectionManager {
 		ip = "127.0.0.1";
 		port = 1234;
 		multicastIp = "228.5.6.7";
-		nulticastConnection = new MultiCast();
+		multicastConnection = new MultiCast();
 	}
 	
 	/**
@@ -56,7 +56,7 @@ public class ConnectionManager {
 		discoverIp();
 		try {
 			//try start a multicast connection
-			nulticastConnection.connect(multicastIp, port, ip);
+			multicastConnection.connect(multicastIp, port, ip);
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -71,7 +71,7 @@ public class ConnectionManager {
 
 	public void sendMulticastMessage(byte[] output) {
 		try {
-			nulticastConnection.send(output);
+			multicastConnection.send(output);
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -85,6 +85,6 @@ public class ConnectionManager {
 	}
 	
 	public ArrayList<Product> getProductsList() {
-		return nulticastConnection.getProductsList();
+		return multicastConnection.getProductsList();
 	}
 }//end class

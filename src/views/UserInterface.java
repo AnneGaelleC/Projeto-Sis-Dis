@@ -97,7 +97,9 @@ public class UserInterface extends javax.swing.JFrame {
         		{
         			product.setEndTime(Float.parseFloat(textFieldEndTime.getText()));
         		}
-        		
+        		product.setSellerCode(seller.getCode());
+        		product.setSellerName(seller.getName());
+        		product.setSellerIp(seller.getMyClientIp());
         		try {
 					seller.SellNewProduct(product);
 				} catch (IOException e1) {

@@ -85,8 +85,8 @@ public class MulticastListener extends Thread{
 			User newUser = new User();
 			newUser.setName(name);
 			newUser.setCode(code);
-			newUser.setMyIp(ip);
-			newUser.setPublicKey(publicKey);
+			newUser.setMyClientIp(ip);
+			//newUser.setPublicKey(publicKey);
 			
 			if(ip != myIp)
 				userList.add(newUser);	

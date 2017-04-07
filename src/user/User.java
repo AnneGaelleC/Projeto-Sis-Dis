@@ -26,26 +26,35 @@ import javax.swing.JOptionPane;
 public class User {
 	protected String name;
 	protected int code;
-	protected ConnectionManager connectionManager;
-	private PublicKey publicKey ;
-	private PrivateKey privateKey;
+	protected String myClientIp;
 	private Chave cryptKey;
-	private String publicKeyString;
-	protected String myIp;
+	protected ConnectionManager connectioManager;
 	
-	public ConnectionManager getconnectionManager() {
-		return connectionManager;
+	public String getMyClientIp() {
+		return myClientIp;
 	}
-	public void setconnectionManager(ConnectionManager connectionManager) {
-		this.connectionManager = connectionManager;
+	
+	public void setMyClientIp(String myClientIp) {
+		this.myClientIp = myClientIp;
 	}
+
 	public User(){
 		name = "";
 		code = 0;
 	}
+	
+	public ConnectionManager getConnectioManager() {
+		return connectioManager;
+	}
+	
+	public void setConnectioManager(ConnectionManager connectioManager) {
+		this.connectioManager = connectioManager;
+	}
+	
 	public void setName(String name){
 		this.name=name;
 	}
+	
 	public void setCode(int code){
 		this.code=code;
 	}
@@ -53,6 +62,7 @@ public class User {
 	public String getName(){
 		return name;
 	}
+	
 	public int getCode(){
 		return code;
 	}
@@ -79,47 +89,31 @@ public class User {
 	    		cryptKey.geraChave();
 	    	}
 	    	
-	    	connectionManager = new ConnectionManager();
+	    	connectioManager = new ConnectionManager();
 			try {
-				connectionManager.initConnections();
-				myIp = connectionManager.getIp();
+				connectioManager.initConnections();
+				myClientIp = connectioManager.getIp();
 				ObjectInputStream inputStream = null;
 	    		String PATH_CHAVE_PUBLICA = "./Key/public.key";
 	    		inputStream = new ObjectInputStream(new FileInputStream(PATH_CHAVE_PUBLICA));
-	    		publicKey = (PublicKey) inputStream.readObject();
+	    		PublicKey publicKey = (PublicKey) inputStream.readObject();
 	            ByteArrayOutputStream bos = new ByteArrayOutputStream(10);
 	            ObjectOutputStream oos = new ObjectOutputStream(bos);
 	            oos.writeChar('H');
 	            oos.writeObject(name);
 	            oos.writeInt(code);
-	            oos.writeObject(connectionManager.getIp());
+	            oos.writeObject(connectioManager.getIp());
 	            oos.writeObject(publicKey);
 	            oos.flush();
 	            byte[] output = bos.toByteArray();
 				
 				//Send the hello message when the user enter the multicast group
-				connectionManager.sendMulticastMessage(output);
+				connectioManager.sendMulticastMessage(output);
 				
 			} catch (UnknownHostException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-			
-	    	//DEBUG
-	    	//System.out.println(name);
-	    	//System.out.println(code);
 	    }	    
 	}
-	public String getMyIp() {
-		return myIp;
-	}
-	public void setMyIp(String myIp) {
-		this.myIp = myIp;
-	}
-	public PublicKey getPublicKey() {
-		return publicKey;
-	}
-	public void setPublicKey(PublicKey publicKey) {
-		this.publicKey = publicKey;
-	}
-}
+}//end class

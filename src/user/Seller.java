@@ -15,16 +15,16 @@ public class Seller extends User{
 	private int port;
 	private TCPClient TCPClient; 
 	
+	public Seller(){
+		
+	}
 	
 	public Seller(User u){
 		name = u.getName();
 		code = u.getCode();
-		myIp = u.getMyIp();
-		connectionManager = u.getconnectionManager();
+		myClientIp = u.getMyClientIp(); 
+		connectionManager = u.connectioManager;
 		
-		
-	}
-	public Seller(){
 		
 	}
 	
@@ -42,7 +42,7 @@ public class Seller extends User{
         oos.writeObject(newProduct.getDescription());
         oos.writeFloat(newProduct.getPrice());
         oos.writeFloat(newProduct.getEndTime());
-        oos.writeObject(this.getMyIp());
+        oos.writeObject(this.getMyClientIp());
         oos.flush();
         byte[] output = bos.toByteArray();
         
