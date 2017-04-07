@@ -7,6 +7,7 @@ public class Buyer extends User {
 	private String name = Buyer.getName();
 	private int code = Buyer.getCode(); 
 	private TCPServer TCPServer; 
+	private ConnectionServer ConnectionServer;
 
 
 	public int getBide() {
@@ -24,5 +25,12 @@ public class Buyer extends User {
 		else{
 			System.out.println("New bide can't be lower than the previous bide");
 		}
+	}
+	
+	public void startCommunicationTCP(int newBide){
+		ConnectionServer = new ConnectionServer();
+		ConnectionServer.initConnections();
+		setBide(newBide);
+		
 	}
 }

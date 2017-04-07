@@ -7,7 +7,7 @@ public class Seller extends User{
 	private String name = Seller.getName();
 	private int code = Seller.getCode(); 
 	private TCPClient TCPClient; 
-	private ConnectionServer c = new ConnectionServer(clientSocket);
+	
 	
 
 	
