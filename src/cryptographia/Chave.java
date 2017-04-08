@@ -4,10 +4,27 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.security.InvalidKeyException;
+import java.security.Key;
+import java.security.KeyFactory;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
+import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
 import java.security.PublicKey;
+import java.security.SecureRandom;
+import java.security.Signature;
+import java.security.SignatureException;
+import java.security.interfaces.RSAKey;
+import java.security.interfaces.RSAPrivateCrtKey;
+import java.security.interfaces.RSAPrivateKey;
+import java.security.interfaces.RSAPublicKey;
+import java.security.spec.EncodedKeySpec;
+import java.security.spec.RSAPrivateKeySpec;
+import java.security.spec.RSAPublicKeySpec;
+import java.security.spec.X509EncodedKeySpec;
+import java.util.Base64;
+
 import javax.crypto.Cipher;
  
  
@@ -15,7 +32,11 @@ public class Chave {
  
 		PrivateKey privateKey;
 		PublicKey publicKey;
-		
+		KeyPairGenerator keyGen;
+	public PrivateKey getPrivateKey() {
+			return privateKey;
+		}
+
 	public PublicKey getPublicKey() {
 		return publicKey;
 	}
@@ -47,10 +68,14 @@ public class Chave {
   
   public void geraChave() {
     try {
-      final KeyPairGenerator keyGen = KeyPairGenerator.getInstance(ALGORITHM);
-      keyGen.initialize(1024);
+    SecureRandom random = SecureRandom.getInstance("SHA1PRNG");
+      keyGen = KeyPairGenerator.getInstance(ALGORITHM);
+      keyGen.initialize(1024, random);
       final KeyPair key = keyGen.generateKeyPair();
  
+     /* privateKey = key.getPrivate();
+      publicKey = key.getPublic();*/
+      
       File chavePrivadaFile = new File(PATH_CHAVE_PRIVADA);
       File chavePublicaFile = new File(PATH_CHAVE_PUBLICA);
  
@@ -81,8 +106,7 @@ public class Chave {
       chavePrivadaOS.writeObject(key.getPrivate());
       chavePrivadaOS.close();
       
-      privateKey = key.getPrivate();
-      publicKey = key.getPublic();
+      
       
     } catch (Exception e) {
       e.printStackTrace();
@@ -123,19 +147,14 @@ public class Chave {
     return cipherText;
   }
   
-  public byte[] criptografa(String texto, PrivateKey chave) {
-	    byte[] cipherText = null;
-	    
-	    try {
-	      final Cipher cipher = Cipher.getInstance(ALGORITHM);
-	      // Criptografa o texto puro usando a chave Púlica
-	      cipher.init(Cipher.ENCRYPT_MODE, chave);
-	      cipherText = cipher.doFinal(texto.getBytes());
-	    } catch (Exception e) {
-	      e.printStackTrace();
-	    }
-	    
-	    return cipherText;
+  
+  public byte[] sign(String texto, PrivateKey chave) throws NoSuchAlgorithmException, InvalidKeyException, SignatureException {
+	    Signature signer;
+	    signer = Signature.getInstance("SHA1withRSA");
+	    signer.initSign(chave); // PKCS#8 is preferred
+	    signer.update(texto.getBytes());
+	    byte[] signature = signer.sign();
+	    return signature;
 	  }
   
  
@@ -159,20 +178,21 @@ public class Chave {
   }
  
   
-  public String decriptografa(byte[] texto, PublicKey chave) {
-	    byte[] dectyptedText = null;
-	    
-	    try {
-	      final Cipher cipher = Cipher.getInstance(ALGORITHM);
-	      // Decriptografa o texto puro usando a chave Privada
-	      cipher.init(Cipher.DECRYPT_MODE, chave);
-	      dectyptedText = cipher.doFinal(texto);
-	 
-	    } catch (Exception ex) {
-	      ex.printStackTrace();
-	    }
-	 
-	    return new String(dectyptedText);
+  public boolean signatureCheck(byte[] data, PublicKey chave, byte[] sig) throws Exception{
+	   
+	  	Signature signer;
+	  	signer = Signature.getInstance("SHA1withRSA");
+		signer.initVerify(chave);
+	    signer.update(data);
+		
+	  	boolean test = signer.verify(sig);
+	  	System.out.println("");
+	  	System.out.println("");
+	  	System.out.println("");
+	  	System.out.println("");
+	  	System.out.println("");
+	    return test;
+	    //return new String(dectyptedText);
 	  }
   /**
    * Testa o Algoritmo

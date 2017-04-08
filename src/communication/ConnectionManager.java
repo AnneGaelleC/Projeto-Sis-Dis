@@ -43,8 +43,7 @@ public class ConnectionManager {
 			        {
 			        	ip = i.getHostAddress().toString();
 			        	//System.out.println(i.getHostAddress());
-			        }
-			        
+			        } 
 			    }
 			}
 		} catch (SocketException e1) {
@@ -62,7 +61,6 @@ public class ConnectionManager {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
 	}
 
 	public String getMulticastIp() {
@@ -77,7 +75,6 @@ public class ConnectionManager {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
 	}
 
 	public String getIp() {
@@ -92,7 +89,5 @@ public class ConnectionManager {
 	public ArrayList<User> getUsersList()
 	{
 		return multicastConnection.getUsersList();
-		
 	}
-	
 }//end class

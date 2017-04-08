@@ -85,7 +85,7 @@ public class Product {
 	public void setEndTime(int endTime) {
 		activatedAuction =true;
 		this.endTime = endTime;
-		finishAuction(endTime);
+		//finishAuction(endTime);
 	}
 
 	public String getProductName() {
@@ -155,5 +155,13 @@ public class Product {
             timer.cancel(); //Terminate the timer thread
         }
     }
+
+	public String getAuthenticityCheck() {
+		return authenticityCheck;
+	}
+	public void setAuthenticityCheck(String authenticityCheck) {
+		this.authenticityCheck = authenticityCheck;
+	}
+    
     
 }

@@ -12,7 +12,9 @@ import javax.swing.JLabel;
 import javax.swing.JButton;
 import java.awt.event.ActionListener;
 import java.io.IOException;
+import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
+import java.security.SignatureException;
 import java.security.spec.InvalidKeySpecException;
 import java.util.ArrayList;
 import java.awt.event.ActionEvent;
@@ -101,8 +103,16 @@ public class UserInterface extends javax.swing.JFrame {
         		product.setSellerName(user.getName());
         		product.setSellerIp(user.getMyClientIp());
         		try {
-					user.SellNewProduct(product);
+					try {
+						user.SellNewProduct(product);
+					} catch (InvalidKeyException | NoSuchAlgorithmException | SignatureException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					}
 				} catch (IOException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				} catch (ClassNotFoundException e1) {
 					// TODO Auto-generated catch block
 					e1.printStackTrace();
 				}

@@ -8,10 +8,12 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 //import java.math.BigInteger;
 import java.net.UnknownHostException;
+import java.security.InvalidKeyException;
 //import java.security.KeyFactory;
 import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
 import java.security.PublicKey;
+import java.security.SignatureException;
 //import java.security.spec.EncodedKeySpec;
 import java.security.spec.InvalidKeySpecException;
 //import java.security.spec.X509EncodedKeySpec;
@@ -39,7 +41,8 @@ public class User {
 	ArrayList< Product > AvailableProductsList= new ArrayList< Product >();
 	ArrayList< Product > WantedProductsList = new ArrayList< Product >();
 	ArrayList< User > othersUsersList = new ArrayList< User >();
-	
+	String PATH_CHAVE_PUBLICA;
+	String PATH_CHAVE_PRIVADA;
 	
 	Timer timerCheckNewUser;
 	
@@ -116,7 +119,7 @@ public class User {
 				connectionManager.initConnections();
 				myClientIp = connectionManager.getIp();
 				ObjectInputStream inputStream = null;
-	    		String PATH_CHAVE_PUBLICA = "./Key/public.key";
+	    		PATH_CHAVE_PUBLICA = "./Key/public.key";
 	    		inputStream = new ObjectInputStream(new FileInputStream(PATH_CHAVE_PUBLICA));
 	    		PublicKey publicKey = (PublicKey) inputStream.readObject();
 	            ByteArrayOutputStream bos = new ByteArrayOutputStream(10);
@@ -142,8 +145,16 @@ public class User {
 	    }	    
 	}
 	
-	public void SellNewProduct(Product newProduct) throws IOException
+	public void SellNewProduct(Product newProduct) throws IOException, ClassNotFoundException, InvalidKeyException, NoSuchAlgorithmException, SignatureException
 	{
+		PATH_CHAVE_PRIVADA = "./Key/private.key";
+		ObjectInputStream inputStream = new ObjectInputStream(new FileInputStream(PATH_CHAVE_PRIVADA));
+		PrivateKey pk = (PrivateKey) inputStream.readObject();
+		//PrivateKey pk = cryptKey.getPrivateKey();
+		//System.out.println(publicKey.toString());
+		byte [] encrypted = cryptKey.sign(this.name, pk);
+		//String encrypted = "asd";
+		newProduct.setAuthenticityCheck(encrypted.toString());
 		productsIamSellingList.add(newProduct);
 		
 		ByteArrayOutputStream bos = new ByteArrayOutputStream(10);
@@ -157,6 +168,7 @@ public class User {
         oos.writeFloat(newProduct.getInitialPrice());
         oos.writeInt(newProduct.getEndTime());
         oos.writeObject(this.getMyClientIp());
+        oos.writeObject(encrypted);
         oos.flush();
         byte[] output = bos.toByteArray();
         
@@ -178,6 +190,11 @@ public class User {
 	public void setPublicKey(PublicKey pk)
 	{
 		cryptKey.setPublicKey(pk);
+	}
+	
+	public PublicKey getPublicKey()
+	{
+		return cryptKey.getPublicKey();
 	}
 	
 	
@@ -233,5 +250,10 @@ public class User {
             
             //chekNewUsers(10);
         }
+    }
+    
+    public boolean checkAuthenticity(String userName, PublicKey pk, byte[] signature) throws Exception
+    {
+    		return cryptKey.signatureCheck(userName.getBytes(), pk, signature);
     }
 }//end class

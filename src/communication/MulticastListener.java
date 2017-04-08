@@ -21,12 +21,12 @@ public class MulticastListener extends Thread{
     MulticastSocket s = null;
     ArrayList< User > userList = new ArrayList< User >();
     ArrayList< Product > productsList = new ArrayList< Product >();
+    String myIp;
     
     public ArrayList<Product> getProductsList() {
 		return productsList;
 	}
-
-	String myIp;
+	
     public ArrayList<User> getUserList() {
 		return userList;
 	}
@@ -52,7 +52,7 @@ public class MulticastListener extends Thread{
                 s.receive(messageIn);
                 try {
 					processMessages(messageIn);
-				} catch (ClassNotFoundException e) {
+				} catch (Exception e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
@@ -67,10 +67,9 @@ public class MulticastListener extends Thread{
     /**
      * 
      * @param messageIn
-     * @throws IOException
-     * @throws ClassNotFoundException
+     * @throws Exception 
      */
-    public void processMessages(DatagramPacket messageIn) throws IOException, ClassNotFoundException
+    public void processMessages(DatagramPacket messageIn) throws Exception
     {
     	ByteArrayInputStream bis = new ByteArrayInputStream(messageIn.getData());
         ObjectInputStream ois = new ObjectInputStream(bis);
@@ -104,6 +103,7 @@ public class MulticastListener extends Thread{
         	int sellerCode, productCode,endTime;
         	float price;
         	Product product = new Product();
+        	byte [] authenticity;
         	
         	sellerName = (String) ois.readObject();
         	product.setSellerName(sellerName);
@@ -137,8 +137,23 @@ public class MulticastListener extends Thread{
         	product.setSellerIp(ip);
         	System.out.println(ip);
         	
-        	//if(ip != myIp)
-        		productsList.add(product);
+        	authenticity = (byte[])ois.readObject();
+        	product.setAuthenticityCheck(authenticity.toString());
+        	System.out.println(authenticity);
+        	
+        	for(int i = 0; i<userList.size(); i++)
+        	{
+        		if(userList.get(i).getCode() == sellerCode)
+        		{
+        			PublicKey pk = userList.get(i).getPublicKey();
+        			if(userList.get(0).checkAuthenticity(sellerName, pk, authenticity))
+        			{
+                		productsList.add(product);
+                		System.out.println("Assinatura verificada!\nProduto adicionado à lista");
+        			}
+        		}
+        	}
+        	
         }
         
         if(messageType == 'U')//update prices
