@@ -23,8 +23,8 @@ public class UserInterface extends javax.swing.JFrame {
 
 	
 	static User user;
-	static Seller seller;
-	static Buyer buyer;
+	//static Seller seller;
+	//static Buyer buyer;
     /**
      * Creates new form NewJFrame
      */
@@ -91,17 +91,17 @@ public class UserInterface extends javax.swing.JFrame {
         		}
         		if(!textFieldPrice.getText().equals(""))
         		{
-        			product.setPrice(Float.parseFloat(textFieldPrice.getText()));
+        			product.setInitialPrice(Float.parseFloat(textFieldPrice.getText()));
         		}
         		if(!textFieldEndTime.getText().equals(""))
         		{
-        			product.setEndTime(Float.parseFloat(textFieldEndTime.getText()));
+        			product.setEndTime(Integer.parseInt(textFieldEndTime.getText()));
         		}
-        		product.setSellerCode(seller.getCode());
-        		product.setSellerName(seller.getName());
-        		product.setSellerIp(seller.getMyClientIp());
+        		product.setSellerCode(user.getCode());
+        		product.setSellerName(user.getName());
+        		product.setSellerIp(user.getMyClientIp());
         		try {
-					seller.SellNewProduct(product);
+					user.SellNewProduct(product);
 				} catch (IOException e1) {
 					// TODO Auto-generated catch block
 					e1.printStackTrace();
@@ -130,10 +130,10 @@ public class UserInterface extends javax.swing.JFrame {
                 		/**
                 		 * If returns true, the product is already been bided and I don't add it to my list again
                 		 */
-                		if(buyer.checkProducts(Integer.parseInt(textFieldCodeProductNeeded.getText()), Integer.parseInt(textFieldSellerWanted.getText())))
+                		/*if(buyer.checkProducts(Integer.parseInt(textFieldCodeProductNeeded.getText()), Integer.parseInt(textFieldSellerWanted.getText())))
                 		{
                 			
-                		}
+                		}*/
                 		
                 	}
                 });
@@ -143,19 +143,22 @@ public class UserInterface extends javax.swing.JFrame {
                 	public void actionPerformed(ActionEvent e) {
                 		ArrayList< Product > productsList = new ArrayList< Product >();
                 		
-                		buyer.updateProductsList();
-                		productsList = buyer.getProductsList();
+                		user.updateProductsList();
+                		productsList = user.getProductsList();
                 		
                 		textPanelproductesList.setText("");
                 		String textToupdate = "";
                 		for(int i = 0; i< productsList.size(); i++)
                 		{
-                			textToupdate = "Seller:"+textToupdate+productsList.get(i).getProductName()+"\n"+
-                							"    Product code->"+productsList.get(i).getProductCode()+"\n"+
-                							"    Desciption->"+productsList.get(i).getDescription()+"\n"+
-                							"    Price->"+productsList.get(i).getPrice()+"\n"+
-                							"    End Time->"+productsList.get(i).getEndTime()+"\n"+
-                							"    Seller code->"+productsList.get(i).getSellerCode()+"\n";
+                			textToupdate = textToupdate+
+                							"Product:"+productsList.get(i).getProductName()+"\n"+
+                							"      Product code->"+productsList.get(i).getProductCode()+"\n"+
+                							"      Desciption->"+productsList.get(i).getDescription()+"\n"+
+                							"      Price->"+productsList.get(i).getInitialPrice()+"\n"+
+                							"      Auction duration->"+productsList.get(i).getEndTime()+" minute(s)\n"+
+                							"      Seller:->"+productsList.get(i).getSellerName()+"\n"+
+                							"      Seller code->"+productsList.get(i).getSellerCode()+"\n"+
+                							"---------------------------------------------------------------------\n\n";
                 		}
                 		
                 		textPanelproductesList.setText(textToupdate);
@@ -377,8 +380,8 @@ public class UserInterface extends javax.swing.JFrame {
     	
     	try {
 			user.initialization();
-			seller = new Seller(user);
-	    	buyer = new Buyer(user);
+			//seller = new Seller(user);
+	    	//buyer = new Buyer(user);
 	    	
 	    	
 		} catch (ClassNotFoundException e) {

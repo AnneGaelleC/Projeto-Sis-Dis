@@ -13,6 +13,18 @@ import javax.crypto.Cipher;
  
 public class Chave {
  
+		PrivateKey privateKey;
+		PublicKey publicKey;
+		
+	public PublicKey getPublicKey() {
+		return publicKey;
+	}
+	
+	public void setPublicKey(PublicKey publicKey) {
+		this.publicKey = publicKey;
+	}
+
+
   public static final String ALGORITHM = "RSA";
  
   /**
@@ -29,7 +41,11 @@ public class Chave {
    * Gera a chave que contém um par de chave Privada e Pública usando 1025 bytes.
    * Armazena o conjunto de chaves nos arquivos private.key e public.key
    */
-  public static void geraChave() {
+  public Chave(){
+	 
+  }
+  
+  public void geraChave() {
     try {
       final KeyPairGenerator keyGen = KeyPairGenerator.getInstance(ALGORITHM);
       keyGen.initialize(1024);
@@ -51,6 +67,8 @@ public class Chave {
       
       chavePublicaFile.createNewFile();
  
+      
+      
       // Salva a Chave Pública no arquivo
       ObjectOutputStream chavePublicaOS = new ObjectOutputStream(
           new FileOutputStream(chavePublicaFile));
@@ -62,6 +80,10 @@ public class Chave {
           new FileOutputStream(chavePrivadaFile));
       chavePrivadaOS.writeObject(key.getPrivate());
       chavePrivadaOS.close();
+      
+      privateKey = key.getPrivate();
+      publicKey = key.getPublic();
+      
     } catch (Exception e) {
       e.printStackTrace();
     }
@@ -71,7 +93,7 @@ public class Chave {
   /**
    * Verifica se o par de chaves Pública e Privada já foram geradas.
    */
-  public static boolean verificaSeExisteChavesNoSO() {
+  public boolean verificaSeExisteChavesNoSO() {
  
     File chavePrivada = new File(PATH_CHAVE_PRIVADA);
     File chavePublica = new File(PATH_CHAVE_PUBLICA);
@@ -86,7 +108,7 @@ public class Chave {
   /**
    * Criptografa o texto puro usando chave pública.
    */
-  public static byte[] criptografa(String texto, PublicKey chave) {
+  public byte[] criptografa(String texto, PublicKey chave) {
     byte[] cipherText = null;
     
     try {
@@ -100,11 +122,27 @@ public class Chave {
     
     return cipherText;
   }
+  
+  public byte[] criptografa(String texto, PrivateKey chave) {
+	    byte[] cipherText = null;
+	    
+	    try {
+	      final Cipher cipher = Cipher.getInstance(ALGORITHM);
+	      // Criptografa o texto puro usando a chave Púlica
+	      cipher.init(Cipher.ENCRYPT_MODE, chave);
+	      cipherText = cipher.doFinal(texto.getBytes());
+	    } catch (Exception e) {
+	      e.printStackTrace();
+	    }
+	    
+	    return cipherText;
+	  }
+  
  
   /**
    * Decriptografa o texto puro usando chave privada.
    */
-  public static String decriptografa(byte[] texto, PrivateKey chave) {
+  public String decriptografa(byte[] texto, PrivateKey chave) {
     byte[] dectyptedText = null;
     
     try {
@@ -120,10 +158,26 @@ public class Chave {
     return new String(dectyptedText);
   }
  
+  
+  public String decriptografa(byte[] texto, PublicKey chave) {
+	    byte[] dectyptedText = null;
+	    
+	    try {
+	      final Cipher cipher = Cipher.getInstance(ALGORITHM);
+	      // Decriptografa o texto puro usando a chave Privada
+	      cipher.init(Cipher.DECRYPT_MODE, chave);
+	      dectyptedText = cipher.doFinal(texto);
+	 
+	    } catch (Exception ex) {
+	      ex.printStackTrace();
+	    }
+	 
+	    return new String(dectyptedText);
+	  }
   /**
    * Testa o Algoritmo
    */
-  public static void main(String[] args) {
+  /*public static void main(String[] args) {
  
     try {
  
@@ -131,7 +185,7 @@ public class Chave {
       if (!verificaSeExisteChavesNoSO()) {
        // Método responsável por gerar um par de chaves usando o algoritmo RSA e
        // armazena as chaves nos seus respectivos arquivos.
-        geraChave();
+        this.geraChave();
       }
  
       final String msgOriginal = "Exemplo de mensagem";
@@ -156,5 +210,5 @@ public class Chave {
     } catch (Exception e) {
       e.printStackTrace();
     }
-  }
+  }*/
 }

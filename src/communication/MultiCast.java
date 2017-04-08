@@ -9,6 +9,7 @@ import java.net.UnknownHostException;
 import java.util.ArrayList;
 
 import auction.Product;
+import user.User;
 
 public class MultiCast {
   private MulticastSocket s;
@@ -53,55 +54,59 @@ public class MultiCast {
    * @param output to send by multicast
    * @throws IOException
    */
-  public void send(byte[] output) throws IOException{
+	public void send(byte[] output) throws IOException{
+		 DatagramPacket indp = new DatagramPacket(output, output.length, group, port);
 	  
-      
-      DatagramPacket indp = new DatagramPacket(output, output.length, group, port);
-      
-      if(s!= null)
-    	  s.send(indp);
-      
-      if ("Stop".equalsIgnoreCase(output.toString()))
-      {	            
-      	s.leaveGroup(group);
-      }
-  }
+		 if(s!= null)
+			 s.send(indp);
+	  
+		 if ("Stop".equalsIgnoreCase(output.toString()))
+		 {	            
+			 s.leaveGroup(group);
+		 }
+	}
 
-  public ArrayList<Product> getProductsList() {
+  	public ArrayList<Product> getProductsList() {
 		return multicastListener.getProductsList();
 	}
   
-public MulticastSocket getS() {
-	return s;
-}
-
-public void setS(MulticastSocket s) {
-	this.s = s;
-}
-
-public InetAddress getGroup() {
-	return group;
-}
-
-public void setGroup(InetAddress group) {
-	this.group = group;
-}
-
-public byte[] getBuffer() {
-	return buffer;
-}
-
-public void setBuffer(byte[] buffer) {
-	this.buffer = buffer;
-}
-
-public MulticastListener getMulticastListener() {
-	return multicastListener;
-}
-
-public void setMulticastListener(MulticastListener multicastListener) {
-	this.multicastListener = multicastListener;
-}
+	public MulticastSocket getS() {
+		return s;
+	}
+	
+	public void setS(MulticastSocket s) {
+		this.s = s;
+	}
+	
+	public InetAddress getGroup() {
+		return group;
+	}
+	
+	public void setGroup(InetAddress group) {
+		this.group = group;
+	}
+	
+	public byte[] getBuffer() {
+		return buffer;
+	}
+	
+	public void setBuffer(byte[] buffer) {
+		this.buffer = buffer;
+	}
+	
+	public MulticastListener getMulticastListener() {
+		return multicastListener;
+	}
+	
+	public void setMulticastListener(MulticastListener multicastListener) {
+		this.multicastListener = multicastListener;
+	}
+	
+	public ArrayList<User> getUsersList()
+	{
+		return multicastListener.getUserList();
+		
+	}
 }
 
 

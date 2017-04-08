@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.Enumeration;
 
 import auction.Product;
+import user.User;
 
 public class ConnectionManager {
 	private MultiCast multicastConnection;
@@ -87,4 +88,11 @@ public class ConnectionManager {
 	public ArrayList<Product> getProductsList() {
 		return multicastConnection.getProductsList();
 	}
+	
+	public ArrayList<User> getUsersList()
+	{
+		return multicastConnection.getUsersList();
+		
+	}
+	
 }//end class

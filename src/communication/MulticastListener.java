@@ -15,7 +15,6 @@ import java.security.PublicKey;
 import java.util.ArrayList;
 
 import auction.Product;
-import user.Seller;
 import user.User;
 
 public class MulticastListener extends Thread{
@@ -92,17 +91,18 @@ public class MulticastListener extends Thread{
 			newUser.setName(name);
 			newUser.setCode(code);
 			newUser.setMyClientIp(ip);
-			//newUser.setPublicKey(publicKey);
+			newUser.setPublicKey(publicKey);
 			
-			if(ip != myIp)
+			if(ip != myIp && !userList.contains(newUser))
 				userList.add(newUser);	
+			
         }
         
         if(messageType == 'N')
         {
         	String productName, sellerName, ip, description;
-        	int sellerCode, productCode;
-        	float price, endTime;
+        	int sellerCode, productCode,endTime;
+        	float price;
         	Product product = new Product();
         	
         	sellerName = (String) ois.readObject();
@@ -126,10 +126,10 @@ public class MulticastListener extends Thread{
         	System.out.println(description);
         	
         	price = ois.readFloat();
-        	product.setPrice(price);
+        	product.setInitialPrice(price);
         	System.out.println(price);
         	
-        	endTime = ois.readFloat();
+        	endTime = ois.readInt();
         	product.setEndTime(endTime);
         	System.out.println(endTime);
         	
