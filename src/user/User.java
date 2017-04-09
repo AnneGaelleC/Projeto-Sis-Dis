@@ -36,7 +36,10 @@ public class User {
 	protected String myClientIp;
 	private Chave cryptKey;
 	protected ConnectionManager connectionManager;
+	private int myServerPort;
 	
+	
+
 	ArrayList< Product > productsIamSellingList = new ArrayList< Product >();
 	ArrayList< Product > AvailableProductsList= new ArrayList< Product >();
 	ArrayList< Product > WantedProductsList = new ArrayList< Product >();
@@ -45,6 +48,14 @@ public class User {
 	String PATH_CHAVE_PRIVADA;
 	
 	Timer timerCheckNewUser;
+	
+	public int getMyServerPort() {
+		return myServerPort;
+	}
+
+	public void setMyServerPort(int myServerPort) {
+		this.myServerPort = myServerPort;
+	}
 	
 	public static long getPID() {
 	    String processName =
@@ -121,6 +132,7 @@ public class User {
 			try {
 				connectionManager.initConnections();
 				myClientIp = connectionManager.getIp();
+				myServerPort = connectionManager.getTcpServerPort();
 				ObjectInputStream inputStream = null;
 	    		inputStream = new ObjectInputStream(new FileInputStream(PATH_CHAVE_PUBLICA));
 	    		PublicKey publicKey = (PublicKey) inputStream.readObject();
@@ -130,6 +142,7 @@ public class User {
 	            oos.writeObject(name);
 	            oos.writeInt(code);
 	            oos.writeObject(connectionManager.getIp());
+	            oos.writeInt(myServerPort);
 	            oos.writeObject(publicKey);
 	            oos.flush();
 	            byte[] output = bos.toByteArray();
@@ -203,7 +216,7 @@ public class User {
 	private void chekNewUsers(int seconds) {
 		timerCheckNewUser = new Timer();
 		//timerCheckNewUser.schedule(new sendMessagesToNewUsers(), seconds*1000);
-		timerCheckNewUser.scheduleAtFixedRate(new sendMessagesToNewUsers(), seconds*1000, seconds*1000);
+		timerCheckNewUser.scheduleAtFixedRate(new sendMessagesToNewUsers(), 0, seconds*1000);
     }
 
     class sendMessagesToNewUsers extends TimerTask {
@@ -227,6 +240,7 @@ public class User {
     	            oos.writeObject(name);
     	            oos.writeInt(code);
     	            oos.writeObject(connectionManager.getIp());
+    	            oos.writeInt(connectionManager.getTcpServerPort());
     	            oos.writeObject(publicKey);
     	            oos.flush();
     	            byte[] output = bos.toByteArray();

@@ -81,15 +81,17 @@ public class MulticastListener extends Thread{
         {
         	String name, ip;
         	PublicKey publicKey;
-        	int code;
+        	int code, serverPort;
         	name = (String) ois.readObject();
 			code = ois.readInt();
 			ip = (String) ois.readObject();
-			publicKey =  (PublicKey)ois.readObject();		
+			serverPort = ois.readInt();
+			publicKey =  (PublicKey)ois.readObject();
 			User newUser = new User();
 			newUser.setName(name);
 			newUser.setCode(code);
 			newUser.setMyClientIp(ip);
+			newUser.setMyServerPort(serverPort);
 			newUser.setPublicKey(publicKey);
 			
 			if(ip != myIp && !userList.contains(newUser))
@@ -149,12 +151,12 @@ public class MulticastListener extends Thread{
         			if(userList.get(0).checkAuthenticity(sellerName, pk, authenticity) && !productsList.contains(product))
         			{
                 		productsList.add(product);
-                		System.out.println("Assinatura verificada!\nProduto adicionado à lista");
+                		System.out.println("Sign verified. Adding the product to list...");
                 		break;
         			}
         			else
         			{
-        				System.out.println("bad sign...");
+        				System.out.println("bad sign... or product already registered ");
             			
         			}
         		}

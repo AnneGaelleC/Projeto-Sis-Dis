@@ -48,15 +48,6 @@ public class Chave {
 
   public static final String ALGORITHM = "RSA";
  
-  /**
-   * Local da chave privada no sistema de arquivos.
-   */
-  //public static final String PATH_CHAVE_PRIVADA = "./Key/private.key";
- 
-  /**
-   * Local da chave pública no sistema de arquivos.
-   */
-  //public static final String PATH_CHAVE_PUBLICA = "./Key/public.key";
  
   /**
    * Gera a chave que contém um par de chave Privada e Pública usando 1025 bytes.

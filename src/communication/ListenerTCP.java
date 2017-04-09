@@ -29,7 +29,7 @@ public class ListenerTCP extends Thread{
     public void run(){
         try {
              DataInputStream in = new DataInputStream( s.getInputStream());
-             s.setSoTimeout(3000);
+             //s.setSoTimeout(3000);
             while(true){
                 try
                 {
