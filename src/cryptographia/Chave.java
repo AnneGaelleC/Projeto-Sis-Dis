@@ -51,12 +51,12 @@ public class Chave {
   /**
    * Local da chave privada no sistema de arquivos.
    */
-  public static final String PATH_CHAVE_PRIVADA = "./Key/private.key";
+  //public static final String PATH_CHAVE_PRIVADA = "./Key/private.key";
  
   /**
    * Local da chave pública no sistema de arquivos.
    */
-  public static final String PATH_CHAVE_PUBLICA = "./Key/public.key";
+  //public static final String PATH_CHAVE_PUBLICA = "./Key/public.key";
  
   /**
    * Gera a chave que contém um par de chave Privada e Pública usando 1025 bytes.
@@ -66,7 +66,7 @@ public class Chave {
 	 
   }
   
-  public void geraChave() {
+  public void geraChave(String path_public_key, String path_private_key) {
     try {
     SecureRandom random = SecureRandom.getInstance("SHA1PRNG");
       keyGen = KeyPairGenerator.getInstance(ALGORITHM);
@@ -76,8 +76,8 @@ public class Chave {
      /* privateKey = key.getPrivate();
       publicKey = key.getPublic();*/
       
-      File chavePrivadaFile = new File(PATH_CHAVE_PRIVADA);
-      File chavePublicaFile = new File(PATH_CHAVE_PUBLICA);
+      File chavePrivadaFile = new File(path_private_key);
+      File chavePublicaFile = new File(path_public_key);
  
       // Cria os arquivos para armazenar a chave Privada e a chave Publica
       if (chavePrivadaFile.getParentFile() != null) {
@@ -117,10 +117,10 @@ public class Chave {
   /**
    * Verifica se o par de chaves Pública e Privada já foram geradas.
    */
-  public boolean verificaSeExisteChavesNoSO() {
+  public boolean verificaSeExisteChavesNoSO(String path_public_key, String path_private_key) {
  
-    File chavePrivada = new File(PATH_CHAVE_PRIVADA);
-    File chavePublica = new File(PATH_CHAVE_PUBLICA);
+    File chavePrivada = new File(path_private_key);
+    File chavePublica = new File(path_public_key);
  
     if (chavePrivada.exists() && chavePublica.exists()) {
       return true;

@@ -108,10 +108,13 @@ public class User {
 	    		code = code*(-1);
 	    	}
 	    	this.code = this.code%10000; //this let the code with 4 digits
+	    	
+	    	PATH_CHAVE_PUBLICA = "./Key/"+ Integer.toString(this.code)+"public.key";
+	    	PATH_CHAVE_PRIVADA = "./Key/"+ Integer.toString(this.code)+"private.key";
 	    	//generate the public and private Key for criptographia
-	    	if (!cryptKey.verificaSeExisteChavesNoSO())
+	    	if (!cryptKey.verificaSeExisteChavesNoSO(PATH_CHAVE_PUBLICA, PATH_CHAVE_PRIVADA))
 	    	{
-	    		cryptKey.geraChave();
+	    		cryptKey.geraChave(PATH_CHAVE_PUBLICA, PATH_CHAVE_PRIVADA);
 	    	}
 	    	
 	    	connectionManager = new ConnectionManager();
@@ -119,7 +122,6 @@ public class User {
 				connectionManager.initConnections();
 				myClientIp = connectionManager.getIp();
 				ObjectInputStream inputStream = null;
-	    		PATH_CHAVE_PUBLICA = "./Key/public.key";
 	    		inputStream = new ObjectInputStream(new FileInputStream(PATH_CHAVE_PUBLICA));
 	    		PublicKey publicKey = (PublicKey) inputStream.readObject();
 	            ByteArrayOutputStream bos = new ByteArrayOutputStream(10);
@@ -147,7 +149,6 @@ public class User {
 	
 	public void SellNewProduct(Product newProduct) throws IOException, ClassNotFoundException, InvalidKeyException, NoSuchAlgorithmException, SignatureException
 	{
-		PATH_CHAVE_PRIVADA = "./Key/private.key";
 		ObjectInputStream inputStream = new ObjectInputStream(new FileInputStream(PATH_CHAVE_PRIVADA));
 		PrivateKey pk = (PrivateKey) inputStream.readObject();
 		//PrivateKey pk = cryptKey.getPrivateKey();
@@ -218,7 +219,6 @@ public class User {
             	//I send my hello again
             	try {
     				ObjectInputStream inputStream = null;
-    	    		String PATH_CHAVE_PUBLICA = "./Key/public.key";
     	    		inputStream = new ObjectInputStream(new FileInputStream(PATH_CHAVE_PUBLICA));
     	    		PublicKey publicKey = (PublicKey) inputStream.readObject();
     	            ByteArrayOutputStream bos = new ByteArrayOutputStream(10);

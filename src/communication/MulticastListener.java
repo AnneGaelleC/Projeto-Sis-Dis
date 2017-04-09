@@ -146,10 +146,16 @@ public class MulticastListener extends Thread{
         		if(userList.get(i).getCode() == sellerCode)
         		{
         			PublicKey pk = userList.get(i).getPublicKey();
-        			if(userList.get(0).checkAuthenticity(sellerName, pk, authenticity))
+        			if(userList.get(0).checkAuthenticity(sellerName, pk, authenticity) && !productsList.contains(product))
         			{
                 		productsList.add(product);
                 		System.out.println("Assinatura verificada!\nProduto adicionado à lista");
+                		break;
+        			}
+        			else
+        			{
+        				System.out.println("bad sign...");
+            			
         			}
         		}
         	}
