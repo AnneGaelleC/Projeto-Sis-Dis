@@ -94,9 +94,29 @@ public class MulticastListener extends Thread{
 			newUser.setMyServerPort(serverPort);
 			newUser.setPublicKey(publicKey);
 			
-			if(ip != myIp && !userList.contains(newUser))
+			int i = 0;
+			boolean equal = false;
+			for(i = 0; i < userList.size(); i++)
+            {
+				if(userList.get(i).getCode() == code)
+				{
+					equal = true;
+					break;
+				}
+            }
+			if(equal == false)
+			{
+				userList.add(newUser);
+			}
+			//to add myself to my list
+			if( userList.size() == 0)
+			{
+				userList.add(newUser);
+			}
+			/*if(!userList.contains(newUser))
+			{
 				userList.add(newUser);	
-			
+			}*/
         }
         
         if(messageType == 'N')
@@ -152,7 +172,7 @@ public class MulticastListener extends Thread{
         		if(userList.get(i).getCode() == sellerCode)
         		{
         			PublicKey pk = userList.get(i).getPublicKey();
-        			if(userList.get(0).checkAuthenticity(sellerName, pk, authenticity) && !productsList.contains(product))
+        			if(userList.get(0).checkAuthenticity(sellerName, pk, authenticity) /*&& !productsList.contains(product)*/)
         			{
                 		productsList.add(product);
                 		userList.get(0).setProductsList(productsList);

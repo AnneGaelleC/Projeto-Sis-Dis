@@ -75,7 +75,7 @@ public class ConnectionManager {
 		discoverIp();
 		try {
 			//try start a multicast connection
-			multicastConnection.connect(multicastIp, multicastPort, multicastIp);
+			multicastConnection.connect(multicastIp, multicastPort, myIp);
 			tcpServer.setServerPort(tcpServerPort);
 			tcpServer.start();
 			
@@ -117,7 +117,7 @@ public class ConnectionManager {
 	{
 		for(int i=0; i< tcpClientsList.size(); i++)
 		{
-			if(tcpClientsList.get(i).getMyIp() == sellerIp)
+			if(tcpClientsList.get(i).getMyIp() == sellerIp && tcpClientsList.get(i).getMyPort()== sellerPort)
 			{
 	            ByteArrayOutputStream bos = new ByteArrayOutputStream(10);
 	            ObjectOutputStream oos;
@@ -140,15 +140,22 @@ public class ConnectionManager {
 	
 	public void createNewClietForMe(String sellerIp, int sellerPort)
 	{
+		boolean create = true;
 		for(int i=0; i< tcpClientsList.size(); i++)
 		{
-			if(tcpClientsList.get(i).getMyIp() != sellerIp/* && sellerIp != myIp*/)
+			if(tcpClientsList.get(i).getMyIp() == sellerIp && tcpClientsList.get(i).getMyPort() == sellerPort)
 			{
-				TCPClient tcpClient = new TCPClient();
-				tcpClient.Connect (sellerPort, sellerIp);
-				tcpClientsList.add(tcpClient);
-				System.out.println("new client created");
+				create = false;
+				break;
 			}
-		}	
+		}
+		
+		if(create == true)
+		{
+			TCPClient tcpClient = new TCPClient();
+			tcpClient.Connect (sellerPort, sellerIp);
+			tcpClientsList.add(tcpClient);
+			System.out.println("new client created");
+		}
 	}
 }//end class

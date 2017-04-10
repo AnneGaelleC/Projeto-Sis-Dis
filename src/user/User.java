@@ -54,6 +54,15 @@ public class User {
 	Timer timerCheckNewUser;
 	Timer timerCheckServerRequests;
 	
+	
+	public ArrayList<User> getOthersUsersList() {
+		return othersUsersList;
+	}
+
+	public void setOthersUsersList(ArrayList<User> othersUsersList) {
+		this.othersUsersList = othersUsersList;
+	}
+
 	public int getMyServerPort() {
 		return myServerPort;
 	}
@@ -80,6 +89,7 @@ public class User {
 		name = "";
 		code = 0;
 		cryptKey = new Chave();
+		othersUsersList.clear();
 	}
 	
 	public ConnectionManager getconnectionManager() {
@@ -235,9 +245,14 @@ public class User {
             System.out.println("new Users check...");
             ArrayList< User > userList = new ArrayList< User >();
             userList = connectionManager.getUsersList();
-            //timerCheckNewUser.cancel(); //Terminate the timer thread
             
-            if(userList.size() != othersUsersList.size())
+            //System.out.println(userList.size());
+            /*for(int i = 0; i< userList.size(); i++)
+            {
+            	System.out.println(userList.get(i).getCode());
+            }*/
+            //System.out.println(othersUsersList.size());
+            if(othersUsersList.size() != userList.size())
             {
             	System.out.println("New Users detected: sending hello message...");
             	//I send my hello again
@@ -255,16 +270,26 @@ public class User {
     	            oos.writeObject(publicKey);
     	            oos.flush();
     	            byte[] output = bos.toByteArray();
-    	            
-    	            for(int i = 0; i<othersUsersList.size(); i++)
+    	            connectionManager.sendMulticastMessage(output);
+    				inputStream.close();
+    				//userList.get(0).setOthersUsersList(userList);
+    				//othersUsersList = userList;
+    	            for(int i = 0; i<userList.size(); i++)
     	            {
-    	            	connectionManager.createNewClietForMe(othersUsersList.get(i).getMyClientIp(), othersUsersList.get(i).getMyServerPort());
+    	            	if(!othersUsersList.contains(userList.get(i)))
+    	            	{
+    	            		connectionManager.createNewClietForMe(userList.get(i).getMyClientIp(), userList.get(i).getMyServerPort());
+    	            	}
+    	            }
+    	            
+    	            othersUsersList.clear();
+    	            for(int i = 0; i<userList.size(); i++)
+    	            {
+    	            	othersUsersList.add(userList.get(i));
     	            }
     				
     				//Send the hello message when the user enter the multicast group
-    				connectionManager.sendMulticastMessage(output);
-    				inputStream.close();
-    				othersUsersList = userList;
+    				
     				
     			} catch (UnknownHostException e) {
     				// TODO Auto-generated catch block
@@ -314,6 +339,7 @@ public class User {
     {
     	for(int i = 0; i< AvailableProductsList.size(); i++)
     	{
+    		this.updateProductsList();
     		if(AvailableProductsList.get(i).getProductCode() == productCode && AvailableProductsList.get(i).getSellerCode() == sellerCode)
     		{
     			byte[] check;
