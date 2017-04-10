@@ -38,9 +38,13 @@ public class Product {
     private String sellerIp;
     /**
      * time the auction of this product will be opend
-     */
+     */ 
     private int endTime;
     /**
+     * the port of the server of the seller
+     */
+    private int sellerPort;
+	/**
      * this text will be encrypted with the private key of the buyer to authenticate his bid
      * this string will be the name of the buyer encrypted.
      * After decrypted it will be compared with the name of the buyer to authenticate the bid
@@ -163,5 +167,12 @@ public class Product {
 		this.authenticityCheck = authenticityCheck;
 	}
     
+	
+	public int getSellerPort() {
+		return sellerPort;
+	}
+	public void setSellerPort(int sellerPort) {
+		this.sellerPort = sellerPort;
+	}
     
 }

@@ -3,6 +3,7 @@ import cryptographia.*;
 
 import java.io.ByteArrayOutputStream;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -25,9 +26,12 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 import communication.ConnectionManager;
+import communication.TCPServer;
+
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 
+import auction.Bid;
 import auction.Product;
 
 public class User {
@@ -48,6 +52,7 @@ public class User {
 	String PATH_CHAVE_PRIVADA;
 	
 	Timer timerCheckNewUser;
+	Timer timerCheckServerRequests;
 	
 	public int getMyServerPort() {
 		return myServerPort;
@@ -151,7 +156,8 @@ public class User {
 				connectionManager.sendMulticastMessage(output);
 				inputStream.close();
 				
-				this.chekNewUsers(10);
+				this.chekNewUsers(3);
+				this.chekServerRequests(1);
 				
 			} catch (UnknownHostException e) {
 				// TODO Auto-generated catch block
@@ -182,6 +188,7 @@ public class User {
         oos.writeFloat(newProduct.getInitialPrice());
         oos.writeInt(newProduct.getEndTime());
         oos.writeObject(this.getMyClientIp());
+        oos.writeInt(connectionManager.getTcpServerPort());
         oos.writeObject(encrypted);
         oos.flush();
         byte[] output = bos.toByteArray();
@@ -199,6 +206,10 @@ public class User {
 	
 	public ArrayList<Product> getProductsList() {
 		return AvailableProductsList;
+	}
+	
+	public void setProductsList(ArrayList<Product> list) {
+		AvailableProductsList = list;
 	}
 	
 	public void setPublicKey(PublicKey pk)
@@ -244,6 +255,11 @@ public class User {
     	            oos.writeObject(publicKey);
     	            oos.flush();
     	            byte[] output = bos.toByteArray();
+    	            
+    	            for(int i = 0; i<othersUsersList.size(); i++)
+    	            {
+    	            	connectionManager.createNewClietForMe(othersUsersList.get(i).getMyClientIp(), othersUsersList.get(i).getMyServerPort());
+    	            }
     				
     				//Send the hello message when the user enter the multicast group
     				connectionManager.sendMulticastMessage(output);
@@ -269,5 +285,45 @@ public class User {
     public boolean checkAuthenticity(String userName, PublicKey pk, byte[] signature) throws Exception
     {
     		return cryptKey.signatureCheck(userName.getBytes(), pk, signature);
+    }
+    
+    private void chekServerRequests(int seconds) {
+		timerCheckServerRequests = new Timer();
+		//timerCheckNewUser.schedule(new sendMessagesToNewUsers(), seconds*1000);
+		timerCheckServerRequests.scheduleAtFixedRate(new ProcessRequests(), 0, seconds*1000);
+    }
+    
+    class ProcessRequests extends TimerTask
+    {
+    	ArrayList< Bid > requests = new ArrayList< Bid >();
+    	public void run() {
+    		//System.out.println("checking requests");
+    		try {
+				TCPServer.semaphore.acquire();
+					requests = TCPServer.requests;
+					TCPServer.requests.clear();
+				TCPServer.semaphore.release();
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+    	}
+    }
+    
+    public void SendBidByTCP(int productCode, int sellerCode, float bidValue) throws FileNotFoundException, IOException, ClassNotFoundException, InvalidKeyException, NoSuchAlgorithmException, SignatureException
+    {
+    	for(int i = 0; i< AvailableProductsList.size(); i++)
+    	{
+    		if(AvailableProductsList.get(i).getProductCode() == productCode && AvailableProductsList.get(i).getSellerCode() == sellerCode)
+    		{
+    			byte[] check;
+    			ObjectInputStream inputStream = new ObjectInputStream(new FileInputStream(PATH_CHAVE_PRIVADA));
+    			PrivateKey pk = (PrivateKey) inputStream.readObject();
+    			check = cryptKey.sign(String.valueOf(sellerCode), pk);
+    			connectionManager.sendBid(sellerCode, productCode, bidValue, check, AvailableProductsList.get(i).getSellerIp(), AvailableProductsList.get(i).getSellerPort());
+    		}
+    	}
+    	
+    	
     }
 }//end class

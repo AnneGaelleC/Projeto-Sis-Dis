@@ -1,9 +1,17 @@
 package communication;
 
 import java.net.*;
+import java.util.ArrayList;
+import java.util.concurrent.Semaphore;
+
+import auction.Bid;
+import user.User;
+
 import java.io.*;
 public class TCPServer extends Thread {
 	int serverPort;
+	public static ArrayList< Bid > requests = new ArrayList< Bid >();
+	public static Semaphore semaphore = new Semaphore(1);
 	
 	public TCPServer(){
 		serverPort = 1235;
@@ -51,10 +59,24 @@ class ConnectionServer extends Thread {
 		try {			                 // an echo server
                 while(true)
                 {
+                	Bid bid = new Bid();
                 	int userCode = in.readInt();
                 	int productCode = in.readInt();
-                	float bid = in.readFloat();
+                	float bidValue = in.readFloat();
                 	String check = in.readUTF();
+                	
+                	bid.userCode = userCode;
+                	bid.product_code = productCode;
+                	bid.bid = bidValue;
+                	bid.check = check;
+                	System.out.println(userCode);
+                	System.out.println(productCode);
+                	System.out.println(bidValue);
+                	System.out.println(check);
+                	
+                	TCPServer.semaphore.acquire();
+                		TCPServer.requests.add(bid);
+                	TCPServer.semaphore.release();
                     //String data = in.readUTF();	                  // read a line of data from the stream
                     //System.out.println("Recebido " + data);
                     out.writeUTF("received");
@@ -63,6 +85,10 @@ class ConnectionServer extends Thread {
 		}catch (EOFException e){System.out.println("EOF:"+e.getMessage());
 		} catch(IOException e) {System.out.println("readline:"+e.getMessage());
 		} //finally{ try {clientSocket.close();}catch (IOException e){/*close failed*/}}
+ catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		
 
 	}

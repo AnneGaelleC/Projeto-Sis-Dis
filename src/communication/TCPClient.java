@@ -3,13 +3,16 @@ package communication;
 import java.net.*;
 import java.io.*;
 public class TCPClient {
+	int myPort;
+	String myIp;
 	Socket s = null;
+	
 	public void Connect (int port, String ServerIp) {
 		// arguments supply message and hostname
 		
                 ListenerTCP listener = new ListenerTCP();
 		try{
-			int serverPort = 7896;
+			int serverPort = port;
 			s = new Socket(ServerIp, serverPort);    
                         //s.setSoTimeout(3000);
                         listener.setSocket(s);
@@ -31,5 +34,21 @@ public class TCPClient {
             messagetoSend = bufferRead.readLine();
             out.writeUTF(messagetoSend);      	// UTF is a string encoding see Sn. 4.4
         }
+	}
+	
+	public int getMyPort() {
+		return myPort;
+	}
+
+	public void setMyPort(int myPort) {
+		this.myPort = myPort;
+	}
+
+	public String getMyIp() {
+		return myIp;
+	}
+
+	public void setMyIp(String myIp) {
+		this.myIp = myIp;
 	}
 }

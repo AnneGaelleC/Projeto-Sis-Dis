@@ -102,7 +102,7 @@ public class MulticastListener extends Thread{
         if(messageType == 'N')
         {
         	String productName, sellerName, ip, description;
-        	int sellerCode, productCode,endTime;
+        	int sellerCode, productCode,endTime, sellerPort;
         	float price;
         	Product product = new Product();
         	byte [] authenticity;
@@ -139,6 +139,10 @@ public class MulticastListener extends Thread{
         	product.setSellerIp(ip);
         	System.out.println(ip);
         	
+        	sellerPort = ois.readInt();
+        	product.setSellerPort(sellerPort);
+        	System.out.println(sellerPort);
+        	
         	authenticity = (byte[])ois.readObject();
         	product.setAuthenticityCheck(authenticity.toString());
         	System.out.println(authenticity);
@@ -151,6 +155,7 @@ public class MulticastListener extends Thread{
         			if(userList.get(0).checkAuthenticity(sellerName, pk, authenticity) && !productsList.contains(product))
         			{
                 		productsList.add(product);
+                		userList.get(0).setProductsList(productsList);
                 		System.out.println("Sign verified. Adding the product to list...");
                 		break;
         			}

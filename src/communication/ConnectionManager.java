@@ -1,10 +1,15 @@
 package communication;
 
+import java.io.ByteArrayOutputStream;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.SocketException;
 import java.net.UnknownHostException;
+import java.security.PublicKey;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import auction.Product;
@@ -20,7 +25,7 @@ public class ConnectionManager {
 	private int tcpServerPort;
 	private int tcpClientPort;
 	TCPServer tcpServer;
-	TCPClient tcpClient;
+	ArrayList< TCPClient > tcpClientsList = new ArrayList< TCPClient >();
 	
 	public ConnectionManager(){
 		Random randomGenerator = new Random();
@@ -30,7 +35,7 @@ public class ConnectionManager {
 		multicastIp = "228.5.6.7";
 		multicastConnection = new MultiCast();
 		tcpServerPort = randomGenerator.nextInt(10000)+1234;
-		tcpClientPort = randomGenerator.nextInt(10000)+1234;
+		//tcpClientPort = randomGenerator.nextInt(10000)+1234;
 		tcpServer = new TCPServer();
 	}
 	
@@ -106,5 +111,44 @@ public class ConnectionManager {
 	public ArrayList<User> getUsersList()
 	{
 		return multicastConnection.getUsersList();
+	}
+	
+	public void sendBid(int sellerCode, int productCode, float bidValue, byte[] check, String sellerIp, int sellerPort)
+	{
+		for(int i=0; i< tcpClientsList.size(); i++)
+		{
+			if(tcpClientsList.get(i).getMyIp() == sellerIp)
+			{
+	            ByteArrayOutputStream bos = new ByteArrayOutputStream(10);
+	            ObjectOutputStream oos;
+				try {
+					oos = new ObjectOutputStream(bos);
+					oos.writeInt(productCode);
+		            oos.writeFloat(bidValue);
+		            oos.writeObject(check);
+		            oos.flush();
+    	            byte[] output = bos.toByteArray();
+    	            tcpClientsList.get(i).SenMessage(output.toString());
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+	            
+			}
+		}
+	}
+	
+	public void createNewClietForMe(String sellerIp, int sellerPort)
+	{
+		for(int i=0; i< tcpClientsList.size(); i++)
+		{
+			if(tcpClientsList.get(i).getMyIp() != sellerIp/* && sellerIp != myIp*/)
+			{
+				TCPClient tcpClient = new TCPClient();
+				tcpClient.Connect (sellerPort, sellerIp);
+				tcpClientsList.add(tcpClient);
+				System.out.println("new client created");
+			}
+		}	
 	}
 }//end class

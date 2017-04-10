@@ -126,9 +126,9 @@ public class UserInterface extends javax.swing.JFrame {
                 textFieldSellerWanted = new JTextField();
                 textFieldSellerWanted.setColumns(10);
                 
-                lblCode_1 = new JLabel("Code");
+                lblCode_1 = new JLabel("Product Code");
                 
-                lblSeller = new JLabel("Seller");
+                lblSeller = new JLabel("Seller code");
                 
                 lblAvailableProducts = new JLabel("Available Products");
                 
@@ -137,13 +137,20 @@ public class UserInterface extends javax.swing.JFrame {
                 
                 btnBide.addActionListener(new ActionListener() {
                 	public void actionPerformed(ActionEvent e) {
-                		/**
-                		 * If returns true, the product is already been bided and I don't add it to my list again
-                		 */
-                		/*if(buyer.checkProducts(Integer.parseInt(textFieldCodeProductNeeded.getText()), Integer.parseInt(textFieldSellerWanted.getText())))
-                		{
-                			
-                		}*/
+                		int productCode, sellerCode;
+                		float bidValue;
+                		
+                		productCode = Integer.parseInt(textFieldCodeProductNeeded.getText());
+                		sellerCode = Integer.parseInt(textFieldSellerWanted.getText());
+                		bidValue = Float.parseFloat(textFieldBidValue.getText());
+                		
+                		try {
+							user.SendBidByTCP(productCode, sellerCode, bidValue);
+						} catch (InvalidKeyException | ClassNotFoundException | NoSuchAlgorithmException
+								| SignatureException | IOException e1) {
+							// TODO Auto-generated catch block
+							e1.printStackTrace();
+						}
                 		
                 	}
                 });
@@ -177,10 +184,10 @@ public class UserInterface extends javax.swing.JFrame {
                         
                         textPanelproductesList = new JEditorPane();
                         
-                        textField = new JTextField();
-                        textField.setColumns(10);
+                        textFieldBidValue = new JTextField();
+                        textFieldBidValue.setColumns(10);
                         
-                        JLabel lblBide = new JLabel("Bide");
+                        JLabel lblBide = new JLabel("Bid value");
                 
                         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
                         jPanel1Layout.setHorizontalGroup(
@@ -198,7 +205,7 @@ public class UserInterface extends javax.swing.JFrame {
                         									.addComponent(lblBide)
                         									.addPreferredGap(ComponentPlacement.RELATED, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         									.addGroup(jPanel1Layout.createParallelGroup(Alignment.LEADING)
-                        										.addComponent(textField, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+                        										.addComponent(textFieldBidValue, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
                         										.addComponent(btnBide)))
                         								.addGroup(jPanel1Layout.createSequentialGroup()
                         									.addGroup(jPanel1Layout.createParallelGroup(Alignment.LEADING)
@@ -234,7 +241,7 @@ public class UserInterface extends javax.swing.JFrame {
                         						.addComponent(textFieldSellerWanted, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
                         					.addGap(18)
                         					.addGroup(jPanel1Layout.createParallelGroup(Alignment.BASELINE)
-                        						.addComponent(textField, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+                        						.addComponent(textFieldBidValue, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
                         						.addComponent(lblBide))
                         					.addGap(29)
                         					.addComponent(btnBide)
@@ -462,6 +469,6 @@ public class UserInterface extends javax.swing.JFrame {
     private JLabel labelSellerCode;
     private JButton btnBide;
     private JEditorPane textPanelproductesList;
-    private JTextField textField;
+    private JTextField textFieldBidValue;
 }
 
