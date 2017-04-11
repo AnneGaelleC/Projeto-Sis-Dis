@@ -27,25 +27,42 @@ import java.util.Base64;
 
 import javax.crypto.Cipher;
  
- 
+ /**
+  * Class that have the digital signature methods
+  */
 public class Chave {
  
 		PrivateKey privateKey;
 		PublicKey publicKey;
 		KeyPairGenerator keyGen;
+		/**
+		 * 
+		 * @return a private key
+		 */
 	public PrivateKey getPrivateKey() {
 			return privateKey;
 		}
 
+	/**
+	 * 
+	 * @return the public key
+	 */
 	public PublicKey getPublicKey() {
 		return publicKey;
 	}
 	
+	/**
+	 * Set a new public key 
+	 * @param publicKey = new public key for this object
+	 */
 	public void setPublicKey(PublicKey publicKey) {
 		this.publicKey = publicKey;
 	}
 
 
+	/**
+	 * Type of algorithm do do the signature
+	 */
   public static final String ALGORITHM = "RSA";
  
  
@@ -57,6 +74,11 @@ public class Chave {
 	 
   }
   
+  /**
+   * Build the public and private keys for a user
+   * @param path_public_key : path to save the file of the public key
+   * @param path_private_key
+   */
   public void geraChave(String path_public_key, String path_private_key) {
     try {
     SecureRandom random = SecureRandom.getInstance("SHA1PRNG");
@@ -176,12 +198,14 @@ public class Chave {
 		signer.initVerify(chave);
 	    signer.update(data);
 		
+	   // System.out.println("signatureCheck:sig.length "+ sig.length);
+	    //System.out.println("signatureCheck:data.length "+ data.length);
 	  	boolean test = signer.verify(sig);
+	  	/*System.out.println("");
 	  	System.out.println("");
 	  	System.out.println("");
 	  	System.out.println("");
-	  	System.out.println("");
-	  	System.out.println("");
+	  	System.out.println("");*/
 	    return test;
 	    //return new String(dectyptedText);
 	  }

@@ -26,7 +26,7 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 import communication.ConnectionManager;
-import communication.TCPServer;
+import communication.UDPServer;
 
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
@@ -108,14 +108,29 @@ public class User {
 		this.code=code;
 	}
 	
+	/**
+	 * 
+	 * @return this user name
+	 */
 	public String getName(){
 		return name;
 	}
 	
+	/**
+	 * 
+	 * @return this user code
+	 */
 	public int getCode(){
 		return code;
 	}
 	
+	/**
+	 * Method to initialize everythinf from an user
+	 * @throws ClassNotFoundException
+	 * @throws IOException
+	 * @throws NoSuchAlgorithmException
+	 * @throws InvalidKeySpecException
+	 */
 	public void initialization() throws ClassNotFoundException, IOException, NoSuchAlgorithmException, InvalidKeySpecException{
 		
 		JFrame frame = new JFrame("User");
@@ -176,6 +191,15 @@ public class User {
 	    }	    
 	}
 	
+	/**
+	 * Method to this user sell a product on this auction
+	 * @param newProduct product I want to sell
+	 * @throws IOException
+	 * @throws ClassNotFoundException
+	 * @throws InvalidKeyException
+	 * @throws NoSuchAlgorithmException
+	 * @throws SignatureException
+	 */
 	public void SellNewProduct(Product newProduct) throws IOException, ClassNotFoundException, InvalidKeyException, NoSuchAlgorithmException, SignatureException
 	{
 		ObjectInputStream inputStream = new ObjectInputStream(new FileInputStream(PATH_CHAVE_PRIVADA));
@@ -207,39 +231,64 @@ public class User {
         
 		
 	}
-	
+	/**
+	 * Update the list of available products on this auction
+	 */
 	public void updateProductsList()
 	{
 		
 		AvailableProductsList = connectionManager.getProductsList();
 	}
 	
+	/**
+	 * Get this user product's list
+	 * @return
+	 */
 	public ArrayList<Product> getProductsList() {
 		return AvailableProductsList;
 	}
 	
+	/*
+	 * set a produc list for this user
+	 */
 	public void setProductsList(ArrayList<Product> list) {
 		AvailableProductsList = list;
 	}
 	
+	/**
+	 * Set a public key for this user
+	 * @param pk new public key for this user
+	 */
 	public void setPublicKey(PublicKey pk)
 	{
 		cryptKey.setPublicKey(pk);
 	}
 	
+	/**
+	 * 
+	 * @return this user public key
+	 */
 	public PublicKey getPublicKey()
 	{
 		return cryptKey.getPublicKey();
 	}
 	
 	
-	
+	/**
+	 * Method to check if there is new users on the auction
+	 * @param seconds interval to check new users on the auction
+	 */
 	private void chekNewUsers(int seconds) {
 		timerCheckNewUser = new Timer();
 		//timerCheckNewUser.schedule(new sendMessagesToNewUsers(), seconds*1000);
 		timerCheckNewUser.scheduleAtFixedRate(new sendMessagesToNewUsers(), 0, seconds*1000);
     }
 
+	/**
+	 * 
+	 * @author lucas
+	 * Class extend timer to send hello message to new users
+	 */
     class sendMessagesToNewUsers extends TimerTask {
         public void run() {
             System.out.println("new Users check...");
@@ -307,46 +356,154 @@ public class User {
         }
     }
     
+    /**
+     * Method to verify a signature
+     * @param userName : string to compare with the decripted signature String
+     * @param pk : public key to try verify the signature
+     * @param signature : byte array with the signed string
+     * @return true is the signature was confirmed 
+     * @throws Exception
+     */
     public boolean checkAuthenticity(String userName, PublicKey pk, byte[] signature) throws Exception
     {
     		return cryptKey.signatureCheck(userName.getBytes(), pk, signature);
     }
     
+    /**
+     *  timer to check new requests to my server
+     * @param seconds: interval to check new requests to my server
+     */
     private void chekServerRequests(int seconds) {
 		timerCheckServerRequests = new Timer();
 		//timerCheckNewUser.schedule(new sendMessagesToNewUsers(), seconds*1000);
 		timerCheckServerRequests.scheduleAtFixedRate(new ProcessRequests(), 0, seconds*1000);
     }
     
+    /**
+     * 
+     * @author lucas
+     * Timer to process the requests to my server
+     */
     class ProcessRequests extends TimerTask
     {
     	ArrayList< Bid > requests = new ArrayList< Bid >();
     	public void run() {
     		//System.out.println("checking requests");
     		try {
-				TCPServer.semaphore.acquire();
-					requests = TCPServer.requests;
-					TCPServer.requests.clear();
-				TCPServer.semaphore.release();
+				UDPServer.semaphore.acquire();
+					requests.clear();
+					for(int i = 0; i< UDPServer.requests.size(); i++)
+					{
+						requests.add(UDPServer.requests.get(i));
+					}
+					UDPServer.requests.clear();	
+				
+				
+				if(!requests.isEmpty())
+				{
+					System.out.println("User-ProcessRequests: Processing...");
+					for(int i = 0; i< requests.size(); i++)
+					{
+						if(requests.get(i).type == 'B')
+						{
+							for(int j = 0; j < othersUsersList.size(); j++)
+							{
+								//System.out.println("User-ProcessRequests: "+"  "+requests.get(i).userCode+"  "+othersUsersList.get(j).getCode());
+								if(requests.get(i).userCode == othersUsersList.get(j).getCode())
+								{
+									System.out.println("User-ProcessRequests: User founded");
+									String userCode = String.valueOf(othersUsersList.get(j).getCode());
+									System.out.println("User-ProcessRequests: user code: " + userCode);
+									//System.out.println("User-ProcessRequests: check: " + requests.get(i).check + requests.get(i).check.length);
+									
+									
+									//byte[] signature = requests.get(i).check.getBytes();
+									PublicKey publick = othersUsersList.get(j).getPublicKey();
+									//System.out.println("User-ProcessRequests: check  " +requests.get(i).check);
+									//System.out.println("User-ProcessRequests: user public key: " + pk.toString());
+									//byte[] data = String.valueOf(othersUsersList.get(j).getCode()).getBytes();
+									System.out.println("Request: "+requests.get(i).check);
+									if(checkAuthenticity("check", publick, requests.get(i).check) == true)
+									{
+										System.out.println("User-ProcessRequests: Signature checked");
+										//if signature checked
+										for(int k = 0; k< productsIamSellingList.size(); k++)
+										{	
+											if(productsIamSellingList.get(k).getProductCode() == requests.get(i).product_code)
+											{
+												productsIamSellingList.get(k).addInterestedUser(othersUsersList.get(j).getCode());
+												if(productsIamSellingList.get(k).getCurrentPrice() < requests.get(i).bid)
+												{
+													//update the current price of this product
+													
+													productsIamSellingList.get(k).setCurrentPrice(requests.get(i).bid);
+													System.out.println("current price updated");
+												}
+												for(int m = 0; m< productsIamSellingList.get(k).getInterrestedUserSize(); m++ )
+												{
+													for(int l = 0; l < othersUsersList.size(); l++)
+													{
+														if(productsIamSellingList.get(k).getInterrestedUserAt(m) == othersUsersList.get(l).getCode())
+														{
+															connectionManager.sendPriceUpdate(othersUsersList.get(l).getMyClientIp(), othersUsersList.get(l).getMyServerPort(), productsIamSellingList.get(k).getProductCode(), code, productsIamSellingList.get(k).getCurrentPrice());
+														}
+													}
+												}
+											}
+											
+										}
+									}
+									else
+									{
+										System.out.println("User-ProcessRequests: Bad signature...");
+									}
+								}
+							}
+						}
+						else if(requests.get(i).type == 'U')
+						{
+							
+						}
+					}
+				}
+				UDPServer.semaphore.release();
 			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (Exception e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
     	}
     }
     
-    public void SendBidByTCP(int productCode, int sellerCode, float bidValue) throws FileNotFoundException, IOException, ClassNotFoundException, InvalidKeyException, NoSuchAlgorithmException, SignatureException
+    /**
+     * Method to give a bid on a product
+     * @param productCode : code of the product I want to buy
+     * @param sellerCode : seller's code of this product
+     * @param bidValue : value of a new bid
+     * @throws FileNotFoundException
+     * @throws IOException
+     * @throws ClassNotFoundException
+     * @throws InvalidKeyException
+     * @throws NoSuchAlgorithmException
+     * @throws SignatureException
+     */
+    public void SendBidByUDP(int productCode, int sellerCode, float bidValue) throws FileNotFoundException, IOException, ClassNotFoundException, InvalidKeyException, NoSuchAlgorithmException, SignatureException
     {
     	for(int i = 0; i< AvailableProductsList.size(); i++)
     	{
     		this.updateProductsList();
     		if(AvailableProductsList.get(i).getProductCode() == productCode && AvailableProductsList.get(i).getSellerCode() == sellerCode)
     		{
+    			System.out.println("(User)enviando bid...");
     			byte[] check;
     			ObjectInputStream inputStream = new ObjectInputStream(new FileInputStream(PATH_CHAVE_PRIVADA));
     			PrivateKey pk = (PrivateKey) inputStream.readObject();
-    			check = cryptKey.sign(String.valueOf(sellerCode), pk);
-    			connectionManager.sendBid(sellerCode, productCode, bidValue, check, AvailableProductsList.get(i).getSellerIp(), AvailableProductsList.get(i).getSellerPort());
+    			//String stringCode = String.valueOf(code);
+    			check = cryptKey.sign("check", pk);
+    			//System.out.println("SendBidByTCP: "+check);
+    			connectionManager.sendBid(code, productCode, bidValue, check, AvailableProductsList.get(i).getSellerIp(), AvailableProductsList.get(i).getSellerPort());
     		}
     	}
     	

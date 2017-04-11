@@ -1,6 +1,9 @@
 package auction;
+import java.util.ArrayList;
 import java.util.Timer;
 import java.util.TimerTask;
+
+import user.User;
 
 public class Product {
 
@@ -50,6 +53,8 @@ public class Product {
      * After decrypted it will be compared with the name of the buyer to authenticate the bid
      */
     private String authenticityCheck;
+    
+    ArrayList< Integer > interestedUsers = new ArrayList< Integer >();
     
     /**
      * Timer to count the auction time
@@ -173,6 +178,28 @@ public class Product {
 	}
 	public void setSellerPort(int sellerPort) {
 		this.sellerPort = sellerPort;
+	}
+	public float getCurrentPrice() {
+		return currentPrice;
+	}
+	public void setCurrentPrice(float currentPrice) {
+		this.currentPrice = currentPrice;
+	}
+	
+	public void addInterestedUser(int a)
+	{
+		if(!interestedUsers.contains(a))
+			interestedUsers.add(a);
+	}
+	
+	public int getInterrestedUserAt(int i)
+	{
+		return interestedUsers.get(i);
+	}
+	
+	public int getInterrestedUserSize()
+	{
+		return interestedUsers.size();
 	}
     
 }

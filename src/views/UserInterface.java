@@ -145,7 +145,7 @@ public class UserInterface extends javax.swing.JFrame {
                 		bidValue = Float.parseFloat(textFieldBidValue.getText());
                 		
                 		try {
-							user.SendBidByTCP(productCode, sellerCode, bidValue);
+							user.SendBidByUDP(productCode, sellerCode, bidValue);
 						} catch (InvalidKeyException | ClassNotFoundException | NoSuchAlgorithmException
 								| SignatureException | IOException e1) {
 							// TODO Auto-generated catch block

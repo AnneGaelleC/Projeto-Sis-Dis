@@ -22,27 +22,25 @@ import javax.xml.bind.Marshaller.Listener;
 public class ListenerTCP extends Thread{
     Socket s = null;
     
+    public ListenerTCP(){
+    	
+    }
     public void setSocket(Socket socket )
     {
         s = socket;
     }
     public void run(){
         try {
+        	//System.out.println("Listenning...");
              DataInputStream in = new DataInputStream( s.getInputStream());
              //s.setSoTimeout(3000);
-            while(true){
-                try
-                {
-                    String data = in.readUTF();	    // read a line of data from the stream
-                    System.out.println("Received: "+ data) ; 
-                }
-                catch(SocketTimeoutException e){
-                    System.out.println("-->>Timed out after 3 seconds!!");
-                }
-                
+            while(true)
+            {
+            	//String data = in.readUTF();	    // read a line of data from the stream
+                //System.out.println("Listener TCP: "+ data) ;
             }
                 
-        }catch (SocketException e){System.out.println("Socket: " + e.getMessage());
+        }catch (SocketException e){System.out.println("(class ListenerTCP)Socket: " + e.getMessage());
         } catch (IOException ex) {
         Logger.getLogger(Listener.class.getName()).log(Level.SEVERE, null, ex);
         }
