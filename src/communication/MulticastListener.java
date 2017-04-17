@@ -74,7 +74,6 @@ public class MulticastListener extends Thread{
     	ByteArrayInputStream bis = new ByteArrayInputStream(messageIn.getData());
         ObjectInputStream ois = new ObjectInputStream(bis);
         
-        //System.out.print(ois.available());
         char messageType = ois.readChar();
         
         if(messageType == 'H')
@@ -174,9 +173,18 @@ public class MulticastListener extends Thread{
         			PublicKey pk = userList.get(i).getPublicKey();
         			if(userList.get(0).checkAuthenticity(sellerName, pk, authenticity) /*&& !productsList.contains(product)*/)
         			{
-                		productsList.add(product);
-                		userList.get(0).setProductsList(productsList);
-                		System.out.println("Sign verified. Adding the product to list...");
+        				boolean add = true;
+        				for(int k=0; k<productsList.size(); k++)
+        				{
+        					if(productsList.get(k).getProductCode() == product.getProductCode() && productsList.get(k).getSellerCode() == product.getSellerCode())
+        						add = false;
+        				}
+        				if(add == true)
+        				{
+	                		productsList.add(product);
+	                		userList.get(0).setProductsList(productsList);
+	                		System.out.println("Sign verified. Adding the product to list...");
+        				}
                 		break;
         			}
         			else

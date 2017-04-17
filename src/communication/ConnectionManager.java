@@ -114,7 +114,9 @@ public class ConnectionManager {
 		return multicastConnection.getUsersList();
 	}
 	
-	public void sendBid(int myCode, int productCode, float bidValue, byte[] check, String sellerIp, int sellerPort) throws ClassNotFoundException, IOException
+	
+	
+	public void sendBid(String sellerIp, int sellerPort, byte[] message) 
 	{
 		boolean sended =false;
 		for(int i=0; i< udpClientsList.size(); i++)
@@ -122,37 +124,8 @@ public class ConnectionManager {
 			if(udpClientsList.get(i).getIp() == sellerIp && udpClientsList.get(i).getPort()== sellerPort)
 			{
 				System.out.println("(ConnectionManager)enviando bid...");
-	           /* ByteArrayOutputStream bos = new ByteArrayOutputStream(10);
-	            ObjectOutputStream oos;*/
-	            
-	            /*ByteArrayOutputStream baos=new ByteArrayOutputStream(10000);
-	            DataOutputStream daos=new DataOutputStream(baos);*/
-	            ByteArrayOutputStream bos = new ByteArrayOutputStream(1000);
-	            ObjectOutputStream oos = new ObjectOutputStream(bos);
-				try {
-					oos.writeChar('B');
-					oos.writeInt(productCode);
-					oos.writeInt(myCode);
-					oos.writeFloat(bidValue);
-					oos.writeObject(check);
-					/*byte[] data=str.getBytes("UTF-8");
-					out.writeInt(data.length);
-					out.write(data);
-
-					// Read data
-					int length=in.readInt();
-					byte[] data=new byte[length];
-					in.readFully(data);*/
-					
-					//System.out.println("conectionManager: "+check.length);
-					oos.flush();
-    	            byte[] output = bos.toByteArray();
-    	            udpClientsList.get(i).SenMessage(output);
-    	            sended = true;
-				} catch (IOException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}  
+				udpClientsList.get(i).SenMessage(message);
+				sended = true;  
 			}
 		}
 		
@@ -160,33 +133,21 @@ public class ConnectionManager {
 		{
 			createNewClietForMe(sellerIp, sellerPort);
 			System.out.println("(ConnectionManager)enviando bid...");
-            /*ByteArrayOutputStream bos = new ByteArrayOutputStream(10);
-            ObjectOutputStream oos;*/
-			/*ByteArrayOutputStream baos=new ByteArrayOutputStream(10000);
-            DataOutputStream daos=new DataOutputStream(baos);*/
-            
-            ByteArrayOutputStream bos = new ByteArrayOutputStream(1000);
-            ObjectOutputStream oos = new ObjectOutputStream(bos);
-			try {
-				
-				oos.writeChar('B');
-				oos.writeInt(productCode);
-				oos.writeInt(myCode);
-				oos.writeFloat(bidValue);
-				oos.writeObject(check);
-				
-				//System.out.println(check.length);
-				oos.flush();
-	            byte[] output = bos.toByteArray();
-	            udpClientsList.get(udpClientsList.size()-1).SenMessage(output);
-	            sended = true;
-	            System.out.println("conectionManager: "+check.length);
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} 
+			
+			for(int i=0; i< udpClientsList.size(); i++)
+			{
+				if(udpClientsList.get(i).getIp() == sellerIp && udpClientsList.get(i).getPort()== sellerPort)
+				{
+					udpClientsList.get(i).SenMessage(message);
+				}
+			}
+	        //udpClientsList.get(udpClientsList.size()-1).SenMessage(message);
+	        sended = true;
 		}
 	}
+	
+	
+	
 	
 	public void createNewClietForMe(String sellerIp, int sellerPort)
 	{
@@ -211,66 +172,68 @@ public class ConnectionManager {
 		}
 	}
 	
-	public void sendPriceUpdate(String ServerIp, int clientPort,  int productCode, int sellerCode, float newValue)
+	public void sendPriceUpdate(String ServerIp, int clientPort,  byte[] update)
 	{
+		
 		boolean sended =false;
 		for(int i=0; i< udpClientsList.size(); i++)
 		{
 			if(udpClientsList.get(i).getIp() == ServerIp && udpClientsList.get(i).getPort()== clientPort)
 			{
-	            ByteArrayOutputStream baos=new ByteArrayOutputStream(1000);
-	            DataOutputStream daos=new DataOutputStream(baos);
-	            
-				try {
-					
-					daos.writeChar('U');
-					daos.writeInt(productCode);
-					daos.writeInt(sellerCode);
-					daos.writeFloat(newValue);
-					
-					/*byte[] data=str.getBytes("UTF-8");
-					out.writeInt(data.length);
-					out.write(data);
-
-					// Read data
-					int length=in.readInt();
-					byte[] data=new byte[length];
-					in.readFully(data);*/
-					
-					//System.out.println(check.length);
-					daos.flush();
-    	            byte[] output = baos.toByteArray();
-    	            udpClientsList.get(i).SenMessage(output);
-    	            sended = true;
-				} catch (IOException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}  
+				System.out.println("(ConnectionManager)enviando bid...");
+				udpClientsList.get(i).SenMessage(update);
+				sended = true;  
 			}
 		}
 		
 		if(sended ==false)
 		{
 			createNewClietForMe(ServerIp, clientPort);
+			System.out.println("(ConnectionManager)enviando bid...");
 			
-			ByteArrayOutputStream baos=new ByteArrayOutputStream(1000);
-            DataOutputStream daos=new DataOutputStream(baos);
-			try {
-				
-				daos.writeInt(1);
-				daos.writeInt(productCode);
-				daos.writeInt(sellerCode);
-				daos.writeFloat(newValue);
-				
-				//System.out.println(check.length);
-				daos.flush();
-	            byte[] output = baos.toByteArray();
-	            udpClientsList.get(udpClientsList.size()-1).SenMessage(output);
-	            sended = true;
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} 
+			for(int i=0; i< udpClientsList.size(); i++)
+			{
+				if(udpClientsList.get(i).getIp() == ServerIp && udpClientsList.get(i).getPort()== clientPort)
+				{
+					udpClientsList.get(i).SenMessage(update);
+				}
+			}
+	        //udpClientsList.get(udpClientsList.size()-1).SenMessage(message);
+	        sended = true;
 		}
 	}
+	
+	
+	public boolean sendIsAliveMessage(String sellerIp, int sellerPort, byte[] message) 
+	{
+		boolean replayOk = false;
+		boolean sended =false;
+		for(int i=0; i< udpClientsList.size(); i++)
+		{
+			if(udpClientsList.get(i).getIp() == sellerIp && udpClientsList.get(i).getPort()== sellerPort)
+			{
+				System.out.println("(ConnectionManager)asking if server is alive...");
+				replayOk = udpClientsList.get(i).SendMessageAlive(message);
+				sended = true;  
+			}
+		}
+		
+		if(sended ==false)
+		{
+			createNewClietForMe(sellerIp, sellerPort);
+			System.out.println("(ConnectionManager)asking if server is alive...");
+			
+			for(int i=0; i< udpClientsList.size(); i++)
+			{
+				if(udpClientsList.get(i).getIp() == sellerIp && udpClientsList.get(i).getPort()== sellerPort)
+				{
+					replayOk = udpClientsList.get(i).SendMessageAlive(message);
+				}
+			}
+	        //udpClientsList.get(udpClientsList.size()-1).SenMessage(message);
+	        sended = true;
+		}
+		return replayOk;
+	}
+	
 }//end class

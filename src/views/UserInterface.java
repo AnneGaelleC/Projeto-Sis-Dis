@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.awt.event.ActionEvent;
 import javax.swing.JPanel;
 import javax.swing.JEditorPane;
+import javax.swing.JTextPane;
 
 public class UserInterface extends javax.swing.JFrame {
 
@@ -104,7 +105,7 @@ public class UserInterface extends javax.swing.JFrame {
         		product.setSellerIp(user.getMyClientIp());
         		try {
 					try {
-						user.SellNewProduct(product);
+						user.SellNewProduct(product, true);
 					} catch (InvalidKeyException | NoSuchAlgorithmException | SignatureException e1) {
 						// TODO Auto-generated catch block
 						e1.printStackTrace();
@@ -328,52 +329,58 @@ public class UserInterface extends javax.swing.JFrame {
         panel = new JPanel();
         jTabbedPane1.addTab("Wanted products", null, panel, null);
         
-        lblCode_2P2 = new JLabel("$ 123");
+        textPaneWantedProducts = new JTextPane();
         
-        lblCode_2P1 = new JLabel("123");
-        
-        lblNewLabelProductCode = new JLabel("Product code");
-        
-        lblPrice_1 = new JLabel("Price");
-        
-        lblSellerCode = new JLabel("Seller code");
-        
-        labelSellerCode = new JLabel("1234556");
+        JButton btnUpdateScreen = new JButton("Update screen");
+        btnUpdateScreen.addActionListener(new ActionListener() {
+        	public void actionPerformed(ActionEvent e) {
+        		ArrayList< Product > wantedProducts = new ArrayList< Product >();
+        		wantedProducts = user.getWantedProductsList();
+        		
+        		String textToupdate = "";
+        		for(int i = 0; i< wantedProducts.size(); i++)
+        		{
+        			textToupdate = textToupdate+
+							"Product:"+wantedProducts.get(i).getProductName()+"\n"+
+							"      Product code->"+wantedProducts.get(i).getProductCode()+"\n"+
+							"      Current Price->"+wantedProducts.get(i).getCurrentPrice()+"\n"+
+							"      Seller:->"+wantedProducts.get(i).getSellerName()+"\n"+
+							"      Seller code->"+wantedProducts.get(i).getSellerCode()+"\n"+
+							"      Winner name->"+wantedProducts.get(i).getAuctionWinnerName()+"\n";
+        					if(wantedProducts.get(i).isActivatedAuction() == true)
+        					{
+        						textToupdate = textToupdate+"      Auction-> in progress...\n";
+        					}
+        					else
+        					{
+        						textToupdate = textToupdate+"      Auction-> Finished!!!\n";
+        					}
+        					textToupdate = textToupdate+"---------------------------------------------------------------------\n\n";
+        		}
+        		textPaneWantedProducts.setText(textToupdate);
+        	}
+        });
         GroupLayout gl_panel = new GroupLayout(panel);
         gl_panel.setHorizontalGroup(
         	gl_panel.createParallelGroup(Alignment.LEADING)
         		.addGroup(gl_panel.createSequentialGroup()
+        			.addContainerGap()
         			.addGroup(gl_panel.createParallelGroup(Alignment.LEADING)
         				.addGroup(gl_panel.createSequentialGroup()
-        					.addGap(19)
-        					.addComponent(lblNewLabelProductCode))
-        				.addGroup(gl_panel.createSequentialGroup()
-        					.addGap(48)
-        					.addComponent(lblCode_2P1)))
-        			.addGap(97)
-        			.addGroup(gl_panel.createParallelGroup(Alignment.LEADING)
-        				.addComponent(lblPrice_1)
-        				.addComponent(lblCode_2P2))
-        			.addPreferredGap(ComponentPlacement.RELATED, 111, Short.MAX_VALUE)
-        			.addGroup(gl_panel.createParallelGroup(Alignment.LEADING)
-        				.addComponent(labelSellerCode)
-        				.addComponent(lblSellerCode))
-        			.addGap(117))
+        					.addComponent(textPaneWantedProducts, GroupLayout.DEFAULT_SIZE, 522, Short.MAX_VALUE)
+        					.addContainerGap())
+        				.addGroup(Alignment.TRAILING, gl_panel.createSequentialGroup()
+        					.addComponent(btnUpdateScreen)
+        					.addGap(207))))
         );
         gl_panel.setVerticalGroup(
         	gl_panel.createParallelGroup(Alignment.LEADING)
         		.addGroup(gl_panel.createSequentialGroup()
         			.addContainerGap()
-        			.addGroup(gl_panel.createParallelGroup(Alignment.BASELINE)
-        				.addComponent(lblNewLabelProductCode)
-        				.addComponent(lblPrice_1)
-        				.addComponent(lblSellerCode))
-        			.addGap(11)
-        			.addGroup(gl_panel.createParallelGroup(Alignment.BASELINE)
-        				.addComponent(lblCode_2P2)
-        				.addComponent(lblCode_2P1)
-        				.addComponent(labelSellerCode))
-        			.addContainerGap(338, Short.MAX_VALUE))
+        			.addComponent(textPaneWantedProducts, GroupLayout.PREFERRED_SIZE, 340, GroupLayout.PREFERRED_SIZE)
+        			.addPreferredGap(ComponentPlacement.RELATED)
+        			.addComponent(btnUpdateScreen)
+        			.addContainerGap(GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         panel.setLayout(gl_panel);
         getContentPane().setLayout(groupLayout);
@@ -461,14 +468,9 @@ public class UserInterface extends javax.swing.JFrame {
     private JLabel lblSeller;
     private JLabel lblAvailableProducts;
     private JPanel panel;
-    private JLabel lblCode_2P2;
-    private JLabel lblCode_2P1;
-    private JLabel lblNewLabelProductCode;
-    private JLabel lblPrice_1;
-    private JLabel lblSellerCode;
-    private JLabel labelSellerCode;
     private JButton btnBide;
     private JEditorPane textPanelproductesList;
     private JTextField textFieldBidValue;
+    private JTextPane textPaneWantedProducts;
 }
 

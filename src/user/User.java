@@ -31,7 +31,7 @@ import communication.UDPServer;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 
-import auction.Bid;
+import auction.Bid_price_update;
 import auction.Product;
 
 public class User {
@@ -41,19 +41,19 @@ public class User {
 	private Chave cryptKey;
 	protected ConnectionManager connectionManager;
 	private int myServerPort;
-	
-	
-
-	ArrayList< Product > productsIamSellingList = new ArrayList< Product >();
-	ArrayList< Product > AvailableProductsList= new ArrayList< Product >();
-	ArrayList< Product > WantedProductsList = new ArrayList< Product >();
-	ArrayList< User > othersUsersList = new ArrayList< User >();
 	String PATH_CHAVE_PUBLICA;
 	String PATH_CHAVE_PRIVADA;
 	
 	Timer timerCheckNewUser;
 	Timer timerCheckServerRequests;
 	
+	ArrayList< Product > productsIamSellingList = new ArrayList< Product >();
+	ArrayList< Product > AvailableProductsList= new ArrayList< Product >();
+	ArrayList< Product > WantedProductsList = new ArrayList< Product >();
+	
+	ArrayList< User > othersUsersList = new ArrayList< User >();
+	
+	byte[] check;
 	
 	public ArrayList<User> getOthersUsersList() {
 		return othersUsersList;
@@ -159,6 +159,8 @@ public class User {
 	    	}
 	    	
 	    	connectionManager = new ConnectionManager();
+	    	
+	    	//tenta mandar uma mensagem de helo
 			try {
 				connectionManager.initConnections();
 				myClientIp = connectionManager.getIp();
@@ -166,6 +168,13 @@ public class User {
 				ObjectInputStream inputStream = null;
 	    		inputStream = new ObjectInputStream(new FileInputStream(PATH_CHAVE_PUBLICA));
 	    		PublicKey publicKey = (PublicKey) inputStream.readObject();
+	    		
+	    		ObjectInputStream inputStreamPrivate = null;
+	    		inputStreamPrivate = new ObjectInputStream(new FileInputStream(PATH_CHAVE_PRIVADA));
+	    		PrivateKey pk = (PrivateKey) inputStreamPrivate.readObject();
+	    		
+	    		check = cryptKey.sign("check", pk);
+	    		setPublicKey(publicKey);
 	            ByteArrayOutputStream bos = new ByteArrayOutputStream(10);
 	            ObjectOutputStream oos = new ObjectOutputStream(bos);
 	            oos.writeChar('H');
@@ -184,7 +193,7 @@ public class User {
 				this.chekNewUsers(3);
 				this.chekServerRequests(1);
 				
-			} catch (UnknownHostException e) {
+			} catch (UnknownHostException | InvalidKeyException | SignatureException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
@@ -200,19 +209,19 @@ public class User {
 	 * @throws NoSuchAlgorithmException
 	 * @throws SignatureException
 	 */
-	public void SellNewProduct(Product newProduct) throws IOException, ClassNotFoundException, InvalidKeyException, NoSuchAlgorithmException, SignatureException
+	public void SellNewProduct(Product newProduct, boolean realyNew) throws IOException, ClassNotFoundException, InvalidKeyException, NoSuchAlgorithmException, SignatureException
 	{
 		ObjectInputStream inputStream = new ObjectInputStream(new FileInputStream(PATH_CHAVE_PRIVADA));
 		PrivateKey pk = (PrivateKey) inputStream.readObject();
-		//PrivateKey pk = cryptKey.getPrivateKey();
-		//System.out.println(publicKey.toString());
 		byte [] encrypted = cryptKey.sign(this.name, pk);
-		//String encrypted = "asd";
+		
 		newProduct.setAuthenticityCheck(encrypted.toString());
-		productsIamSellingList.add(newProduct);
+		if(realyNew == true)
+			productsIamSellingList.add(newProduct);
 		
 		ByteArrayOutputStream bos = new ByteArrayOutputStream(10);
         ObjectOutputStream oos = new ObjectOutputStream(bos);
+        
         oos.writeChar('N');
         oos.writeObject(name); //seller name
         oos.writeInt(code); //seller code
@@ -228,15 +237,14 @@ public class User {
         byte[] output = bos.toByteArray();
         
         connectionManager.sendMulticastMessage(output);
-        
-		
 	}
+	
+	
 	/**
 	 * Update the list of available products on this auction
 	 */
 	public void updateProductsList()
 	{
-		
 		AvailableProductsList = connectionManager.getProductsList();
 	}
 	
@@ -244,14 +252,16 @@ public class User {
 	 * Get this user product's list
 	 * @return
 	 */
-	public ArrayList<Product> getProductsList() {
+	public ArrayList<Product> getProductsList() 
+	{
 		return AvailableProductsList;
 	}
 	
 	/*
 	 * set a produc list for this user
 	 */
-	public void setProductsList(ArrayList<Product> list) {
+	public void setProductsList(ArrayList<Product> list) 
+	{
 		AvailableProductsList = list;
 	}
 	
@@ -294,18 +304,13 @@ public class User {
             System.out.println("new Users check...");
             ArrayList< User > userList = new ArrayList< User >();
             userList = connectionManager.getUsersList();
-            
-            //System.out.println(userList.size());
-            /*for(int i = 0; i< userList.size(); i++)
-            {
-            	System.out.println(userList.get(i).getCode());
-            }*/
-            //System.out.println(othersUsersList.size());
+        
             if(othersUsersList.size() != userList.size())
             {
             	System.out.println("New Users detected: sending hello message...");
-            	//I send my hello again
+            	
             	try {
+                	System.out.println("sending hello message...");
     				ObjectInputStream inputStream = null;
     	    		inputStream = new ObjectInputStream(new FileInputStream(PATH_CHAVE_PUBLICA));
     	    		PublicKey publicKey = (PublicKey) inputStream.readObject();
@@ -323,19 +328,7 @@ public class User {
     				inputStream.close();
     				//userList.get(0).setOthersUsersList(userList);
     				//othersUsersList = userList;
-    	            for(int i = 0; i<userList.size(); i++)
-    	            {
-    	            	if(!othersUsersList.contains(userList.get(i)))
-    	            	{
-    	            		connectionManager.createNewClietForMe(userList.get(i).getMyClientIp(), userList.get(i).getMyServerPort());
-    	            	}
-    	            }
     	            
-    	            othersUsersList.clear();
-    	            for(int i = 0; i<userList.size(); i++)
-    	            {
-    	            	othersUsersList.add(userList.get(i));
-    	            }
     				
     				//Send the hello message when the user enter the multicast group
     				
@@ -344,15 +337,117 @@ public class User {
     				// TODO Auto-generated catch block
     				e.printStackTrace();
     			} catch (IOException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				} catch (ClassNotFoundException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
+    				// TODO Auto-generated catch block
+    				e.printStackTrace();
+    			} catch (ClassNotFoundException e) {
+    				// TODO Auto-generated catch block
+    				e.printStackTrace();
+    			}
+            	
+            	//I send my hello again
+            	for(int i = 0; i<userList.size(); i++)
+	            {
+	            	if(!othersUsersList.contains(userList.get(i)))
+	            	{
+	            		connectionManager.createNewClietForMe(userList.get(i).getMyClientIp(), userList.get(i).getMyServerPort());
+	            	}
+	            }
+	            
+	            othersUsersList.clear();
+	            for(int i = 0; i<userList.size(); i++)
+	            {
+	            	othersUsersList.add(userList.get(i));
+	            }
+	            
+	            //I send my products again if there is a new user
+	            for(int j = 0; j< productsIamSellingList.size(); j++)
+	            {
+	            	try {
+						SellNewProduct(productsIamSellingList.get(j), false);
+					} catch (InvalidKeyException | ClassNotFoundException | NoSuchAlgorithmException
+							| SignatureException | IOException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+	            }
+            	
             }
             
-            //chekNewUsers(10);
+            
+            
+            //Check if the auction is ended
+            for(int h=0; h<productsIamSellingList.size(); h++)
+			{
+				if(productsIamSellingList.get(h).isActivatedAuction() == false)
+				{
+					ByteArrayOutputStream bos = new ByteArrayOutputStream(100);
+		            ObjectOutputStream oos;
+					try {
+						oos = new ObjectOutputStream(bos);
+					
+			            oos.writeChar('E');
+						oos.writeInt(productsIamSellingList.get(h).getProductCode());
+						oos.writeInt(code);
+						oos.writeObject(productsIamSellingList.get(h).getCurrentPrice());
+						oos.writeObject(productsIamSellingList.get(h).getAuctionWinnerName());
+						oos.writeObject(check);
+						oos.flush();
+			            byte[] output = bos.toByteArray();
+			            
+			            for(int j = 0; j< productsIamSellingList.get(h).getInterrestedUserSize(); j++)
+			            {
+			            	for(int k=0; k< othersUsersList.size(); k++)
+			            	{
+			            		if(productsIamSellingList.get(h).getInterrestedUserAt(j) == othersUsersList.get(k).getCode())
+			            		{
+			            			connectionManager.sendPriceUpdate(othersUsersList.get(k).getMyClientIp(), othersUsersList.get(k).getMyServerPort(), output);
+			            		}
+			            	}
+			            }
+			            productsIamSellingList.remove(h);
+					} catch (IOException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+		            
+				}
+			}
+            
+            boolean isAlive = false;
+            for(int i = 0 ; i < WantedProductsList.size() ; i++)
+            {
+            	for(int j = 0 ; j < othersUsersList.size() ; j++)
+            	{
+            		if(WantedProductsList.get(i).getSellerCode() == othersUsersList.get(j).getCode())
+            		{
+            			ByteArrayOutputStream bos = new ByteArrayOutputStream(100);
+    		            ObjectOutputStream oos;
+						try {
+							 oos = new ObjectOutputStream(bos);
+							 oos.writeChar('A');
+							 oos.writeObject(check);
+							 oos.flush();
+					         byte[] output = bos.toByteArray();
+		            			//ask if its server is alive
+					         isAlive = connectionManager.sendIsAliveMessage(othersUsersList.get(j).getMyClientIp(), othersUsersList.get(j).getMyServerPort(), output);
+						
+					         if(isAlive == false)
+					         {
+					        	 //Server is dead
+					        	 System.out.println("server has died");
+					        	 WantedProductsList.get(i).finishByServerDead();
+					        	 JOptionPane.showMessageDialog(null, "(Auctioner died...)ACTION ENDED for product ctype filter textode: " + WantedProductsList.get(i).getProductCode(), "ACTION ENDED", JOptionPane.INFORMATION_MESSAGE);
+					        	 WantedProductsList.remove(i);
+					        	 break;
+					        	 
+					         }
+						} catch (IOException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
+            		}
+            	}
+            }
         }
     }
     
@@ -386,7 +481,7 @@ public class User {
      */
     class ProcessRequests extends TimerTask
     {
-    	ArrayList< Bid > requests = new ArrayList< Bid >();
+    	ArrayList< Bid_price_update > requests = new ArrayList< Bid_price_update >();
     	public void run() {
     		//System.out.println("checking requests");
     		try {
@@ -397,7 +492,7 @@ public class User {
 						requests.add(UDPServer.requests.get(i));
 					}
 					UDPServer.requests.clear();	
-				
+				UDPServer.semaphore.release();
 				
 				if(!requests.isEmpty())
 				{
@@ -408,21 +503,15 @@ public class User {
 						{
 							for(int j = 0; j < othersUsersList.size(); j++)
 							{
-								//System.out.println("User-ProcessRequests: "+"  "+requests.get(i).userCode+"  "+othersUsersList.get(j).getCode());
 								if(requests.get(i).userCode == othersUsersList.get(j).getCode())
 								{
+									/**
+									 * DEBUG...
+									 */
 									System.out.println("User-ProcessRequests: User founded");
-									String userCode = String.valueOf(othersUsersList.get(j).getCode());
-									System.out.println("User-ProcessRequests: user code: " + userCode);
-									//System.out.println("User-ProcessRequests: check: " + requests.get(i).check + requests.get(i).check.length);
 									
-									
-									//byte[] signature = requests.get(i).check.getBytes();
 									PublicKey publick = othersUsersList.get(j).getPublicKey();
-									//System.out.println("User-ProcessRequests: check  " +requests.get(i).check);
-									//System.out.println("User-ProcessRequests: user public key: " + pk.toString());
-									//byte[] data = String.valueOf(othersUsersList.get(j).getCode()).getBytes();
-									System.out.println("Request: "+requests.get(i).check);
+		
 									if(checkAuthenticity("check", publick, requests.get(i).check) == true)
 									{
 										System.out.println("User-ProcessRequests: Signature checked");
@@ -432,11 +521,12 @@ public class User {
 											if(productsIamSellingList.get(k).getProductCode() == requests.get(i).product_code)
 											{
 												productsIamSellingList.get(k).addInterestedUser(othersUsersList.get(j).getCode());
-												if(productsIamSellingList.get(k).getCurrentPrice() < requests.get(i).bid)
+												if(productsIamSellingList.get(k).getCurrentPrice() < requests.get(i).bid && productsIamSellingList.get(k).isActivatedAuction())
 												{
 													//update the current price of this product
-													
 													productsIamSellingList.get(k).setCurrentPrice(requests.get(i).bid);
+													productsIamSellingList.get(k).setAuctionWinnerCode(othersUsersList.get(j).getCode());
+													productsIamSellingList.get(k).setAuctionWinnerName(othersUsersList.get(j).getName());
 													System.out.println("current price updated");
 												}
 												for(int m = 0; m< productsIamSellingList.get(k).getInterrestedUserSize(); m++ )
@@ -445,12 +535,22 @@ public class User {
 													{
 														if(productsIamSellingList.get(k).getInterrestedUserAt(m) == othersUsersList.get(l).getCode())
 														{
-															connectionManager.sendPriceUpdate(othersUsersList.get(l).getMyClientIp(), othersUsersList.get(l).getMyServerPort(), productsIamSellingList.get(k).getProductCode(), code, productsIamSellingList.get(k).getCurrentPrice());
+															ByteArrayOutputStream bos = new ByteArrayOutputStream(100);
+												            ObjectOutputStream oos = new ObjectOutputStream(bos);
+												            oos.writeChar('U');
+															oos.writeInt(requests.get(i).product_code);
+															oos.writeInt(code);
+															oos.writeObject(productsIamSellingList.get(k).getCurrentPrice());
+															oos.writeObject(productsIamSellingList.get(k).getAuctionWinnerName());
+															oos.writeObject(check);
+															oos.flush();
+												            byte[] output = bos.toByteArray();
+												            
+															connectionManager.sendPriceUpdate(othersUsersList.get(l).getMyClientIp(), othersUsersList.get(l).getMyServerPort(), output);
 														}
 													}
 												}
 											}
-											
 										}
 									}
 									else
@@ -462,11 +562,30 @@ public class User {
 						}
 						else if(requests.get(i).type == 'U')
 						{
-							
+							for(int t=0; t< WantedProductsList.size(); t++)
+					    	{
+					    		if(WantedProductsList.get(t).getProductCode() == requests.get(i).product_code)
+					    		{
+					    			WantedProductsList.get(t).setCurrentPrice(requests.get(i).bid);
+					    			WantedProductsList.get(t).setAuctionWinnerName(requests.get(i).winnerName);
+					    			JOptionPane.showMessageDialog(null, "Price updated to product code: " + requests.get(i).product_code , "PriceUpdate ", JOptionPane.INFORMATION_MESSAGE);
+					    		}
+					    	}
+						}
+						else if(requests.get(i).type == 'E')
+						{
+							for(int t=0; t< WantedProductsList.size(); t++)
+					    	{
+					    		if(WantedProductsList.get(t).getProductCode() == requests.get(i).product_code)
+					    		{
+					    			WantedProductsList.get(t).setCurrentPrice(requests.get(i).bid);
+					    			WantedProductsList.get(t).setAuctionWinnerName(requests.get(i).winnerName);
+					    			JOptionPane.showMessageDialog(null, "ACTION ENDED for product code: " + requests.get(i).product_code +" WINNER: "+ requests.get(i).winnerName, "ACTION ENDED", JOptionPane.INFORMATION_MESSAGE);
+					    		}
+					    	}
 						}
 					}
 				}
-				UDPServer.semaphore.release();
 			} catch (InterruptedException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -477,18 +596,7 @@ public class User {
     	}
     }
     
-    /**
-     * Method to give a bid on a product
-     * @param productCode : code of the product I want to buy
-     * @param sellerCode : seller's code of this product
-     * @param bidValue : value of a new bid
-     * @throws FileNotFoundException
-     * @throws IOException
-     * @throws ClassNotFoundException
-     * @throws InvalidKeyException
-     * @throws NoSuchAlgorithmException
-     * @throws SignatureException
-     */
+
     public void SendBidByUDP(int productCode, int sellerCode, float bidValue) throws FileNotFoundException, IOException, ClassNotFoundException, InvalidKeyException, NoSuchAlgorithmException, SignatureException
     {
     	for(int i = 0; i< AvailableProductsList.size(); i++)
@@ -500,13 +608,39 @@ public class User {
     			byte[] check;
     			ObjectInputStream inputStream = new ObjectInputStream(new FileInputStream(PATH_CHAVE_PRIVADA));
     			PrivateKey pk = (PrivateKey) inputStream.readObject();
-    			//String stringCode = String.valueOf(code);
+    			
     			check = cryptKey.sign("check", pk);
-    			//System.out.println("SendBidByTCP: "+check);
-    			connectionManager.sendBid(code, productCode, bidValue, check, AvailableProductsList.get(i).getSellerIp(), AvailableProductsList.get(i).getSellerPort());
+    			
+    			ByteArrayOutputStream bos = new ByteArrayOutputStream(100);
+	            ObjectOutputStream oos = new ObjectOutputStream(bos);
+	            oos.writeChar('B');
+				oos.writeInt(productCode);
+				oos.writeInt(code);
+				oos.writeObject(bidValue);
+				oos.writeObject(check);
+				oos.flush();
+	            byte[] output = bos.toByteArray();
+	            
+	            addWantedProduct(AvailableProductsList.get(i));
+    			connectionManager.sendBid(AvailableProductsList.get(i).getSellerIp(), AvailableProductsList.get(i).getSellerPort(), output);
     		}
     	}
-    	
-    	
     }
+    
+    public ArrayList<Product> getWantedProductsList() {
+		return WantedProductsList;
+	}
+    
+    public void addWantedProduct(Product p)
+    {
+    	for(int i=0; i< WantedProductsList.size(); i++)
+    	{
+    		if(WantedProductsList.get(i).getProductCode() == p.getProductCode())
+    		{
+    			return;
+    		}
+    	}
+    	WantedProductsList.add(p);
+    }
+    
 }//end class

@@ -54,6 +54,10 @@ public class Product {
      */
     private String authenticityCheck;
     
+    private int auctionWinnerCode;
+    
+    private String auctionWinnerName;
+    
     ArrayList< Integer > interestedUsers = new ArrayList< Integer >();
     
     /**
@@ -94,7 +98,7 @@ public class Product {
 	public void setEndTime(int endTime) {
 		activatedAuction =true;
 		this.endTime = endTime;
-		//finishAuction(endTime);
+		finishAuction(endTime);
 	}
 
 	public String getProductName() {
@@ -201,5 +205,28 @@ public class Product {
 	{
 		return interestedUsers.size();
 	}
-    
+	public boolean isActivatedAuction() {
+		return activatedAuction;
+	}
+	public void setActivatedAuction(boolean activatedAuction) {
+		this.activatedAuction = activatedAuction;
+	}
+	public int getAuctionWinnerCode() {
+		return auctionWinnerCode;
+	}
+	public void setAuctionWinnerCode(int auctionWinnerCode) {
+		this.auctionWinnerCode = auctionWinnerCode;
+	}
+	public String getAuctionWinnerName() {
+		return auctionWinnerName;
+	}
+	public void setAuctionWinnerName(String auctionWinnerName) {
+		this.auctionWinnerName = auctionWinnerName;
+	}
+	
+	public void finishByServerDead()
+	{
+		activatedAuction = false;
+		timer.cancel(); //Terminate the timer thread
+	}
 }

@@ -4,13 +4,13 @@ import java.net.*;
 import java.util.ArrayList;
 import java.util.concurrent.Semaphore;
 
-import auction.Bid;
+import auction.Bid_price_update;
 import user.User;
 
 import java.io.*;
 public class UDPServer extends Thread {
 	int serverPort;
-	public static ArrayList< Bid > requests = new ArrayList< Bid >();
+	public static ArrayList< Bid_price_update > requests = new ArrayList< Bid_price_update >();
 	public static Semaphore semaphore = new Semaphore(1);
 	
 	/**
@@ -52,44 +52,95 @@ public class UDPServer extends Thread {
  			while(true){
  				DatagramPacket request = new DatagramPacket(buffer, buffer.length);
   				aSocket.receive(request); 
-  				/*ByteArrayInputStream bais=new ByteArrayInputStream(request.getData());
-  		        DataInputStream dais=new DataInputStream(bais);*/
-  		        
-  				//ByteArrayInputStream bis = new ByteArrayInputStream(request.getData());
-  			    //ObjectInputStream ois = new ObjectInputStream(bis);
-  		      ByteArrayInputStream bis = new ByteArrayInputStream(request.getData());
-  		      ObjectInputStream ois = new ObjectInputStream(bis);
+  				ByteArrayInputStream bis = new ByteArrayInputStream(request.getData());
+  				ObjectInputStream ois = new ObjectInputStream(bis);
   		         char type = ois.readChar();
   		         if(type == 'B')
   		         {
-  		        	 byte [] checkB = new byte[128];
-  		        	 int productCode = ois.readInt();
-  				     int userCode= ois.readInt();
-  				     float bidValue = ois.readFloat();
-  				     //String check = dais.readUTF();
+  		        	 byte [] checkB;
+  		        	 int productCode;
+  		        	 int userCode;
+  		        	 float bidValue;
+  		        	 Bid_price_update bid = new Bid_price_update();
+  		        	 productCode = ois.readInt();
+  				     userCode= ois.readInt();
+  				     bidValue = (float)ois.readObject();
   				     checkB = (byte[])ois.readObject();
   				     
   				     
   				     
-  				     Bid bid = new Bid();
+  				     
   				     bid.type = type;
   				     bid.bid = bidValue;
   				     bid.check = checkB;
   				     bid.product_code = productCode;
   				     bid.userCode = userCode;
-  				     System.out.println("Server-received: "+checkB.toString() + checkB.length);
   				     semaphore.acquire();
-  				     	System.out.println("Server-received: Adding request to list");
+  				     	System.out.println("Server-received bid: Adding request to list");
   				     	requests.add(bid);
   				     semaphore.release();
-  	  				System.out.println("Server-received: " + String.valueOf(productCode)+"  " + String.valueOf(bidValue)+"  " +checkB.toString()+"  "+ userCode);
-  	    			DatagramPacket reply = new DatagramPacket("received".getBytes(), "received".length(), request.getAddress(), request.getPort());
+  	  				DatagramPacket reply = new DatagramPacket("bid received".getBytes(), "bid received".length(), request.getAddress(), request.getPort());
   	    			aSocket.send(reply); 
   		         }
   		         else if(type == 'U')
   		         {
-  		        	DatagramPacket reply = new DatagramPacket("updated".getBytes(), "updated".length(), request.getAddress(), request.getPort());
-  	    			aSocket.send(reply); 
+  		        	 byte [] checkB;
+ 		        	 int productCode;
+ 		        	 int userCode;
+ 		        	 float value;
+ 		        	 String winnerName;
+ 		        	 Bid_price_update bid = new Bid_price_update();
+ 		        	 productCode = ois.readInt();
+ 				     userCode= ois.readInt();
+ 				     value = (float)ois.readObject();
+ 				     winnerName = (String)ois.readObject();
+ 				     checkB = (byte[])ois.readObject();
+ 				     
+ 				     bid.type = type;
+ 				     bid.bid = value;
+ 				     bid.check = checkB;
+ 				     bid.product_code = productCode;
+ 				     bid.userCode = userCode;
+ 				     bid.winnerName = winnerName;
+ 				     semaphore.acquire();
+ 				     	System.out.println("Server-received update: Adding request to list");
+ 				     	requests.add(bid);
+ 				     semaphore.release();
+  		        	 DatagramPacket reply = new DatagramPacket("price updated".getBytes(), "price updated".length(), request.getAddress(), request.getPort());
+  	    			 aSocket.send(reply); 
+  		         }
+  		         else if(type == 'E')
+  		         {
+  		        	byte [] checkB;
+		        	 int productCode;
+		        	 int userCode;
+		        	 float value;
+		        	 String winnerName;
+		        	 Bid_price_update bid = new Bid_price_update();
+		        	 productCode = ois.readInt();
+				     userCode= ois.readInt();
+				     value = (float)ois.readObject();
+				     winnerName = (String)ois.readObject();
+				     checkB = (byte[])ois.readObject();
+				     
+				     bid.type = type;
+				     bid.bid = value;
+				     bid.check = checkB;
+				     bid.product_code = productCode;
+				     bid.userCode = userCode;
+				     bid.winnerName = winnerName;
+				     semaphore.acquire();
+				     	System.out.println("Server-received ending auction: Adding request to list");
+				     	requests.add(bid);
+				     semaphore.release();
+ 		        	 DatagramPacket reply = new DatagramPacket("action ended".getBytes(), "action ended".length(), request.getAddress(), request.getPort());
+ 	    			 aSocket.send(reply);
+  		         }
+  		         
+  		         else if(type == 'A')
+  		         {
+  		        	DatagramPacket reply = new DatagramPacket("alive".getBytes(), "alive".length(), request.getAddress(), request.getPort());
+	    			aSocket.send(reply);
   		         }
 			     
     		}
